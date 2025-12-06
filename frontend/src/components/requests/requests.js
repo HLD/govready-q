@@ -9,9 +9,9 @@ import {
   TextField,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import SelectUnstyled, { selectUnstyledClasses } from '@mui/base/SelectUnstyled';
-import OptionUnstyled, { optionUnstyledClasses } from '@mui/base/OptionUnstyled';
-import PopperUnstyled from '@mui/base/PopperUnstyled';
+import { Select as SelectUnstyled, selectClasses as selectUnstyledClasses } from '@mui/base/Select';
+import { Option as OptionUnstyled, optionClasses as optionUnstyledClasses } from '@mui/base/Option';
+import { Popper as PopperUnstyled } from '@mui/base/Popper';
 import { styled } from '@mui/system';
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
