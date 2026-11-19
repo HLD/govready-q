@@ -1,4 +1,4 @@
-import rest_framework_filters as rest_filters
+import django_filters
 from rest_framework import filters
 from django.db import models
 from typing import List
@@ -14,10 +14,26 @@ class FilterFields:
     List = ['in']
 
 
-class BaseFilterSet(rest_filters.FilterSet):
-    id = rest_filters.AutoFilter(lookups=FilterFields.String)
-    updated = rest_filters.AutoFilter(lookups=FilterFields.Date)
-    created = rest_filters.AutoFilter(lookups=FilterFields.Date)
+class BaseFilterSet(django_filters.FilterSet):
+    """Base FilterSet that adds lookups for the common id/created/updated fields.
+
+    Subclasses declare their own fields in Meta.fields as a {field: [lookups]} dict;
+    the common fields are merged in automatically (when the model has them).
+    """
+    base_filter_fields = {
+        "id": FilterFields.String,
+        "updated": FilterFields.Date,
+        "created": FilterFields.Date,
+    }
+
+    @classmethod
+    def get_fields(cls):
+        fields = super().get_fields()
+        model_field_names = {f.name for f in cls._meta.model._meta.get_fields()}
+        for name, lookups in cls.base_filter_fields.items():
+            if name in model_field_names and name not in fields:
+                fields[name] = lookups
+        return fields
 
 
 class RelatedOrderingFilter(filters.OrderingFilter):

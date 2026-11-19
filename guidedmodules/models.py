@@ -661,8 +661,8 @@ class Task(BaseModel):
                             help_text="A UUID (a unique identifier) for this Task, used to synchronize Task content between systems.")
 
     class Meta:
-        index_together = [
-            ('project', 'editor', 'module'),
+        indexes = [
+            models.Index(fields=['project', 'editor', 'module']),
         ]
 
     def __str__(self):
@@ -2462,10 +2462,10 @@ class InstrumentationEvent(BaseModel):
     extra = JSONField(help_text="Additional un-indexed data.")
 
     class Meta:
-        index_together = [
-            ('event_type', 'event_time'),
-            ('project', 'event_type', 'event_time'),
-            ('module', 'event_type', 'event_time'),
+        indexes = [
+            models.Index(fields=['event_type', 'event_time']),
+            models.Index(fields=['project', 'event_type', 'event_time']),
+            models.Index(fields=['module', 'event_type', 'event_time']),
         ]
 
 

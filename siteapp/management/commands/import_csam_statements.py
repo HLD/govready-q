@@ -4,7 +4,7 @@ from controls.enums.statements import StatementTypeEnum
 from controls.models import Statement, ImportRecord
 from controls.utilities import oscalize_control_id
 from siteapp.models import User, Project, Organization
-import xlsxio
+from openpyxl import load_workbook
 import os
 
 import logging
@@ -34,17 +34,19 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         process_data = {}
-        with xlsxio.XlsxioReader(options['file']) as reader:
-            with reader.get_sheet() as sheet:
-                sheet.read_header()  # Skip first row since it contains the classification banner
-                header = sheet.read_header()
-                rows = sheet.read_data()
-                for row in rows:
-                    system_name = row[3]
-                    record = dict(control_number=row[5], implementation_statement=row[9])
-                    if system_name not in process_data:
-                        process_data[system_name] = []
-                    process_data[system_name].append(record)
+        workbook = load_workbook(options['file'], read_only=True, data_only=True)
+        try:
+            sheet = workbook.worksheets[0]
+            # Skip first row (classification banner) and second row (header).
+            for row in sheet.iter_rows(min_row=3, values_only=True):
+                row = ["" if cell is None else str(cell) for cell in row]
+                system_name = row[3]
+                record = dict(control_number=row[5], implementation_statement=row[9])
+                if system_name not in process_data:
+                    process_data[system_name] = []
+                process_data[system_name].append(record)
+        finally:
+            workbook.close()
 
         org = Organization.objects.first()
         user = User.objects.get(username=options['username'])
@@ -95,14 +97,14 @@ class Command(BaseCommand):
                 oscal_control_id = oscalize_control_id(row['control_number'])
                 if oscal_control_id in existing_statement_sids and row['implementation_statement']:
                     # Update smt if exists
-                    record = self.find(oscal_control_id, 'sid', existing_statements)
+                record = self.find(oscal_control_id, 'sid', existing_statements)
                     if record.body != row['implementation_statement']:
                         record.body = row['implementation_statement']
                         record.import_record = import_record
                         record.save()
                 elif oscal_control_id in existing_statement_sids and not row['implementation_statement']:
                     # Delete smt if exists and incoming implementation_statement is empty
-                    record = self.find(oscal_control_id, 'sid', existing_statements)
+                record = self.find(oscal_control_id, 'sid', existing_statements)
                     record.delete()
                 elif row['implementation_statement']:
                     # Create smt if doesn't exist

@@ -76,12 +76,20 @@ def signup_wrapper(request, *args, **kwargs):
 
 if settings.ALLAUTH_FORM_RENDERER:
     # Monkey-patch allauth to return forms that render with django-bootstrap3.
+    # allauth's views live in several submodules of allauth.account.views, each of
+    # which imports allauth.utils.get_form_class by name, so patch each of them.
+    import importlib
+    import pkgutil
     import allauth.account.views
-    allauth_get_form_class_original = allauth.account.views.get_form_class
+    import allauth.utils
+    allauth_get_form_class_original = allauth.utils.get_form_class
     def allauth_get_form_class_patch(*args, **kwargs):
         form = allauth_get_form_class_original(*args, **kwargs)
         class F(form):
             def as_p(self):
                 return settings.ALLAUTH_FORM_RENDERER(self)
         return F
-    allauth.account.views.get_form_class = allauth_get_form_class_patch
+    for _module_info in pkgutil.iter_modules(allauth.account.views.__path__):
+        _module = importlib.import_module("allauth.account.views." + _module_info.name)
+        if getattr(_module, "get_form_class", None) is allauth_get_form_class_original:
+            _module.get_form_class = allauth_get_form_class_patch

@@ -288,8 +288,8 @@ class Comment(models.Model):
     extra = JSONField(blank=True, help_text="Additional information stored with this object.")
 
     class Meta:
-        index_together = [
-            ('discussion', 'user'),
+        indexes = [
+            models.Index(fields=['discussion', 'user']),
         ]
 
     def __str__(self):

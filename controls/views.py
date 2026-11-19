@@ -8,6 +8,7 @@ import tempfile
 import ast
 from collections import defaultdict
 from datetime import datetime
+from datetime import timezone as dt_timezone
 from itertools import groupby
 from pathlib import PurePath
 from urllib.parse import quote, urlunparse
@@ -945,7 +946,7 @@ class OSCALSystemSecurityPlanSerializer(SystemSecurityPlanSerializer):
             # Read in temporary file and shape into trestle pydantic SSP definition.
             trestle_oscal_json = trestlessp.SystemSecurityPlan.oscal_read(path_ssp_definition)
             # Finally validate that this object is valid by the OSCAL System Security Plan definition
-            trestlessp.SystemSecurityPlan.validate(trestle_oscal_json)
+            trestlessp.SystemSecurityPlan.model_validate(trestle_oscal_json)
             # Cleanup
             shutil.rmtree(tempdir)
         except Exception as e:
@@ -1125,7 +1126,7 @@ class ComponentImporter(object):
             # Read in temporary file and shape into trestle pydantic Component definition.
             trestle_oscal_json = trestlecomponent.ComponentDefinition.oscal_read(path_component_definition)
             # Finally validate that this object is valid by the component definition
-            trestlecomponent.ComponentDefinition.validate(trestle_oscal_json)
+            trestlecomponent.ComponentDefinition.model_validate(trestle_oscal_json)
             # Cleanup
             shutil.rmtree(tempdir)
         except Exception as e:
@@ -3816,7 +3817,7 @@ def system_oscal_template(request):
         # Read in temporary file and shape into trestle pydantic SSP definition.
         trestle_oscal_json = trestlessp.SystemSecurityPlan.oscal_read(path_ssp_definition)
         # Finally validate that this object is valid by the OSCAL System Security Plan definition
-        trestlessp.SystemSecurityPlan.validate(trestle_oscal_json)
+        trestlessp.SystemSecurityPlan.model_validate(trestle_oscal_json)
         # Cleanup
         shutil.rmtree(tempdir)
     except Exception as e:
@@ -3876,13 +3877,13 @@ def validate_field(validation_type, value):
     if validation_type == "System Created":
         # dateFormat = re.search(r'^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{}$', value)
         try:
-            created = datetime.strptime(value, '%m/%d/%y').replace(tzinfo = timezone.utc)
+            created = datetime.strptime(value, '%m/%d/%y').replace(tzinfo = dt_timezone.utc)
             return created
         except:
             return None
     if validation_type == "System Updated":
         try: 
-            updated = datetime.strptime(value, '%m/%d/%y').replace(tzinfo = timezone.utc)
+            updated = datetime.strptime(value, '%m/%d/%y').replace(tzinfo = dt_timezone.utc)
             return updated
         except:
             return {
@@ -3891,15 +3892,15 @@ def validate_field(validation_type, value):
     if "date" in validation_type.lower():
         if value:
             try:
-                date = datetime.strptime(value, '%m/%d/%y').replace(tzinfo = timezone.utc)
+                date = datetime.strptime(value, '%m/%d/%y').replace(tzinfo = dt_timezone.utc)
                 return date
             except:
                 try:
-                    date = datetime.strptime(value, '%m/%d/%Y').replace(tzinfo = timezone.utc)
+                    date = datetime.strptime(value, '%m/%d/%Y').replace(tzinfo = dt_timezone.utc)
                     return date
                 except:
                     try:
-                        date = datetime.strptime(value, '%m-%d-%Y %H:%M:%S %p').replace(tzinfo = timezone.utc)
+                        date = datetime.strptime(value, '%m-%d-%Y %H:%M:%S %p').replace(tzinfo = dt_timezone.utc)
                         return date
                     except:
                         return {
@@ -4791,15 +4792,15 @@ def get_integrations_system_info(request, system_id):
     hosting_facility = random.choice(["DISC", "AWS", "AWS","AWS", "AWS", "DC-1", "AWS", "AWS", "Azure", "AWS", "AWS", "AWS", "DC-1",  ])
     # Dates
     from datetime import datetime, date, timedelta, timezone
-    date1, date2 = datetime(2014, 6, 3, tzinfo=timezone.utc), datetime(2022, 2, 1, tzinfo=timezone.utc)
+    date1, date2 = datetime(2014, 6, 3, tzinfo=dt_timezone.utc), datetime(2022, 2, 1, tzinfo=dt_timezone.utc)
     dates_between = date2 - date1
     total_days = dates_between.days
     created = date1 + timedelta(days=random.randrange(total_days))
     next_audit = datetime.now().date() + timedelta(random.randint(40,600))
-    next_scan = datetime.combine(datetime.now().date() + timedelta(random.randint(2,12)), datetime.min.time()).replace(tzinfo=timezone.utc)
+    next_scan = datetime.combine(datetime.now().date() + timedelta(random.randint(2,12)), datetime.min.time()).replace(tzinfo=dt_timezone.utc)
 
     # datetime.combine(date.today(), datetime.min.time())
-    # next_scan = next_scan.replace(tzinfo=timezone.utc)
+    # next_scan = next_scan.replace(tzinfo=dt_timezone.utc)
     dates_between_created = created - date1
     pen_test = created + timedelta(days=random.randrange(dates_between_created.days))
 

@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 from django.urls import include
 from rest_framework import routers
 from rest_framework_nested.routers import NestedSimpleRouter
@@ -32,6 +32,6 @@ router.register(r'proposals', ProposalViewSet)
 project_router = NestedSimpleRouter(router, r'projects', lookup='projects')
 
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^', include(project_router.urls)),
+    re_path(r'^', include(router.urls)),
+    re_path(r'^', include(project_router.urls)),
 ]

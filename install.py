@@ -165,18 +165,17 @@ def main():
         ver = sys.version_info
         print("Python version is {}.{}.{}.".format(ver[0], ver[1], ver[2]))
 
-        if sys.version_info >= (3, 6):
-            print("+ Python version is >= 3.6.")
+        if sys.version_info >= (3, 12):
+            print("+ Python version is >= 3.12.")
         else:
-            print("! Python version is < 3.6.")
-            print("GovReady-Q is best run with Python 3.6 or higher.")
-            print("It is STRONGLY encouraged to run GovReady-Q with Python 3.8 or higher.")
+            print("! Python version is < 3.12.")
+            print("GovReady-Q requires Python 3.12 or higher (Django 5.2 LTS).")
             if args.non_interactive:
                 reply = ''
             else:
                 reply = input("Continue install with Python {}.{}.{} (y/n)? ".format(ver[0], ver[1], ver[2]))
             if len(reply) == 0 or reply[0].lower() != "y":
-                raise HaltedError("Python version is < 3.8")
+                raise HaltedError("Python version is < 3.12")
 
         # Print spacer
         print(SPACER)

@@ -10,4 +10,4 @@ PASSWORD="$1"
 
 # Generate a set of test users and organizations, and fill in
 # assessments for those organizations
-python3.6 manage.py populate --full --password "$1"
+python3 manage.py populate --full --password "$1"

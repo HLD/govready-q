@@ -98,10 +98,10 @@ fi
 echo "Starting at ${ADDRESS} with HTTPS ${HTTPS-false}."
 
 # Run checks.
-python3.6 manage.py check --deploy
+python3 manage.py check --deploy
 
 # Check if 0.9.0 upgrade has happened
-DB_BEFORE_090=$(python3.6 manage.py db_before_090)
+DB_BEFORE_090=$(python3 manage.py db_before_090)
 if [ "$DB_BEFORE_090" = "True" ]
 then
 	echo "** WARNING!! **"
@@ -132,15 +132,15 @@ else
 fi
 
 # Initialize the database.
-python3.6 manage.py migrate
-python3.6 manage.py load_modules
+python3 manage.py migrate
+python3 manage.py load_modules
 
 # Create an initial administrative user and organization
 # non-interactively and write the administrator's initial
 # password to standard output.
 if [ -n "${FIRST_RUN-}" ]; then
 	echo "Running FIRST_RUN actions..."
-	python3.6 manage.py first_run --non-interactive
+	python3 manage.py first_run --non-interactive
 fi
 
 # Configure the HTTP+applications server.

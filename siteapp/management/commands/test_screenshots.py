@@ -20,6 +20,7 @@
 #                             --path screenshots.pdf \
 #                             --size 1024x768
 
+from selenium.webdriver.common.by import By
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.crypto import get_random_string
@@ -192,7 +193,7 @@ class Command(BaseCommand):
         sleep(self.mouse_speed)
 
     def move_cursor_to(self, elem):
-        elem = self.browser.browser.find_element_by_css_selector(elem)
+        elem = self.browser.browser.find_element(By.CSS_SELECTOR, elem)
         sleep(self.mouse_speed * .25) # pause before the next motion
         self.browser.browser.execute_script("moveMouseToElem(arguments[0], arguments[1]);", elem, self.mouse_speed)
         scrollTop0 = self.browser.browser.execute_script("return $(window).scrollTop()")

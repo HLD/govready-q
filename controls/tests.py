@@ -69,7 +69,7 @@ class CreateSystemTests(OrganizationSiteFunctionalTests):
             # self.click_element('input#new_system_button')
             # sidebardark-header h2
             # class toast-msg : Created new System
-            # wait_for_sleep_after(lambda: self.browser.find_element_by_class("toast-msg"))
+            # wait_for_sleep_after(lambda: self.browser.find_element(By.CLASS_NAME, "toast-msg"))
             #wait_for_sleep_after(lambda: self.assertInNodeText("Created new System", ".toast-msg"))
 
             self.assertEqual(1,1)
@@ -338,9 +338,8 @@ class ComponentUITests(OrganizationSiteFunctionalTests):
 
         self.click_element('input#import_component_submit')
 
-        element_count_after_duplicate_import = wait_for_sleep_after(lambda: Element.objects.filter(element_type="system_element").count())
-
-        self.assertEqual(element_count_after_import + 1, element_count_after_duplicate_import)
+        # Wait for the duplicate import to finish being saved.
+        wait_for_sleep_after(lambda: self.assertEqual(element_count_after_import + 1, Element.objects.filter(element_type="system_element").count()))
 
         original_import_element_count = Element.objects.filter(name='test component 1').count()
         self.assertEqual(original_import_element_count, 1)
@@ -365,7 +364,7 @@ class ComponentUITests(OrganizationSiteFunctionalTests):
         current_path = urlparse(self.browser.current_url).path
         self.assertEqual('/controls/import_records', current_path)
 
-        import_record_links = self.browser.find_elements_by_class_name('import_record_detail_link')
+        import_record_links = self.browser.find_elements(By.CLASS_NAME, 'import_record_detail_link')
         self.assertEqual(len(import_record_links), 0)
 
         # Create an Import Record with a component and statement
@@ -374,7 +373,7 @@ class ComponentUITests(OrganizationSiteFunctionalTests):
 
         self.browser.refresh()
 
-        import_record_links = wait_for_sleep_after(lambda: self.browser.find_elements_by_class_name('import_record_detail_link'))
+        import_record_links = wait_for_sleep_after(lambda: self.browser.find_elements(By.CLASS_NAME, 'import_record_detail_link'))
         self.assertEqual(len(import_record_links), 1)
 
     def test_import_delete(self):
@@ -430,7 +429,7 @@ class ComponentUITests(OrganizationSiteFunctionalTests):
         url = self.url(f"controls/components/{self.component.id}")
         self.browser.get(url)
         # Asserts that the edit button element is not found on the page
-        self.assertTrue(len(self.browser.find_elements_by_css_selector('#edit-button'))<1)
+        self.assertTrue(len(self.browser.find_elements(By.CSS_SELECTOR, '#edit-button'))<1)
 
 class StatementUnitTests(TestCase):
     ## Simply dummy test ##
@@ -598,7 +597,7 @@ class ElementUITests(OrganizationSiteFunctionalTests):
         # Check element/component page
         wait_for_sleep_after(lambda: self.assertInNodeText(element_name, "#element-name"))
         var_sleep(1)
-        lockIsPresent =  wait_for_sleep_after(lambda: self.browser.find_element_by_id('lock-glyph'))
+        lockIsPresent =  wait_for_sleep_after(lambda: self.browser.find_element(By.ID, 'lock-glyph'))
         self.assertTrue(lockIsPresent)
         var_sleep(1)
 
@@ -620,7 +619,7 @@ class ElementUITests(OrganizationSiteFunctionalTests):
         var_sleep(1)
 
         # Check if lock glyphicon is present on the document to signify the Element is private
-        lockIsPresent =  wait_for_sleep_after(lambda: self.browser.find_element_by_id('lock-glyph'))
+        lockIsPresent =  wait_for_sleep_after(lambda: self.browser.find_element(By.ID, 'lock-glyph'))
         self.assertTrue(lockIsPresent)
 
         # Edit component    
@@ -640,7 +639,7 @@ class ElementUITests(OrganizationSiteFunctionalTests):
         notThere = False
         # Expecting an exception to be thrown due to the element not being on the page
         try:
-            wait_for_sleep_after(lambda: self.browser.find_element_by_id('lock-glyph'))
+            wait_for_sleep_after(lambda: self.browser.find_element(By.ID, 'lock-glyph'))
         except NoSuchElementException:
             print('Lock Glyph does not exist on page')
             pass
@@ -665,7 +664,7 @@ class ElementUITests(OrganizationSiteFunctionalTests):
         var_sleep(3)
 
         # Check if lock glyph is displayed 
-        glyphPresent = wait_for_sleep_after(lambda: self.browser.find_element_by_id('lock-glyph'))
+        glyphPresent = wait_for_sleep_after(lambda: self.browser.find_element(By.ID, 'lock-glyph'))
         
         self.assertTrue(glyphPresent)
         var_sleep(1)
@@ -685,7 +684,7 @@ class ElementUITests(OrganizationSiteFunctionalTests):
         # Check element/component page
         wait_for_sleep_after(lambda: self.assertInNodeText(element_name, "#element-name"))
         var_sleep(1)
-        lockIsPresent =  wait_for_sleep_after(lambda: self.browser.find_element_by_id('lock-glyph'))
+        lockIsPresent =  wait_for_sleep_after(lambda: self.browser.find_element(By.ID, 'lock-glyph'))
         self.assertTrue(lockIsPresent)
         var_sleep(3)
 
@@ -709,7 +708,7 @@ class ElementUITests(OrganizationSiteFunctionalTests):
         var_sleep(1)
 
         # Grab Tanium link element
-        wait_for_sleep_after(lambda: self.browser.find_element_by_link_text("Tanium").click())
+        wait_for_sleep_after(lambda: self.browser.find_element(By.LINK_TEXT, "Tanium").click())
         var_sleep(1)
 
         # Check element/component page
@@ -720,7 +719,7 @@ class ElementUITests(OrganizationSiteFunctionalTests):
         # Edit button should not be visible
         notThere = False
         try:
-            wait_for_sleep_after(lambda: self.browser.find_element_by_id('edit-button'))
+            wait_for_sleep_after(lambda: self.browser.find_element(By.ID, 'edit-button'))
         except NoSuchElementException:
             print('Edit Button does not exist on page')
             notThere = True
@@ -993,7 +992,7 @@ class OrgParamTests(SeleniumTest):
         project.save()
 
         parameter_values = project.get_parameter_values(Catalogs.NIST_SP_800_53_rev4)
-        self.assertEquals(parameter_values["ac-1_prm_2"], "at least every 3 years")
+        self.assertEqual(parameter_values["ac-1_prm_2"], "at least every 3 years")
 
         # now, add an organizational setting and try again
         OrganizationalSetting.objects.create(organization=org,
@@ -1003,7 +1002,7 @@ class OrgParamTests(SeleniumTest):
 
         # we should now see the organizational setting override
         parameter_values = project.get_parameter_values(Catalogs.NIST_SP_800_53_rev4)
-        self.assertEquals(parameter_values["ac-1_prm_2"], "at least every 100 years")
+        self.assertEqual(parameter_values["ac-1_prm_2"], "at least every 100 years")
 
 class ControlComponentTests(OrganizationSiteFunctionalTests):
 
@@ -1027,7 +1026,7 @@ class ControlComponentTests(OrganizationSiteFunctionalTests):
 
         try:
             # Using full Xpath
-            comp_tab = self.browser.find_element_by_xpath("/html/body/div[1]/div/div[3]/ul/li[2]/a")
+            comp_tab = self.browser.find_element(By.XPATH, "/html/body/div[1]/div/div[3]/ul/li[2]/a")
         except:
             # Non-full Xpath with wait
             comp_tab = wait.until(EC.visibility_of_element_located((By.XPATH, "//a[contains(@href, '#component_controls')]")))
@@ -1039,7 +1038,7 @@ class ControlComponentTests(OrganizationSiteFunctionalTests):
         Allows for viewing of attributes of a given dropdown/select
         """
 
-        dropdown = Select(self.browser.find_element_by_id(dropdownid))
+        dropdown = Select(self.browser.find_element(By.ID, dropdownid))
         return dropdown
 
     def create_fill_statement_form(self, name, statement, part, status, statusvalue, remarks, num):
@@ -1054,20 +1053,20 @@ class ControlComponentTests(OrganizationSiteFunctionalTests):
 
         # Open the new component form open
         try:
-            new_comp_btn = self.browser.find_element_by_link_text("New Component Statement")
+            new_comp_btn = self.browser.find_element(By.LINK_TEXT, "New Component Statement")
         except:
-            new_comp_btn = self.browser.find_element_by_id(f"producer_element-{num}-title")
+            new_comp_btn = self.browser.find_element(By.ID, f"producer_element-{num}-title")
         new_comp_btn.click()
         # Fill out form
-        wait_for_sleep_after(lambda: self.browser.find_element_by_id("producer_element_name").send_keys(name))
+        wait_for_sleep_after(lambda: self.browser.find_element(By.ID, "producer_element_name").send_keys(name))
 
-        self.browser.find_elements_by_name("body")[-1].send_keys(statement)
-        self.browser.find_elements_by_name("pid")[-1].send_keys(part)
+        self.browser.find_elements(By.NAME, "body")[-1].send_keys(statement)
+        self.browser.find_elements(By.NAME, "pid")[-1].send_keys(part)
         select = self.dropdown_option(status)
         select.select_by_value(statusvalue)
-        self.browser.find_elements_by_name("remarks")[-1].send_keys(remarks)
+        self.browser.find_elements(By.NAME, "remarks")[-1].send_keys(remarks)
         # Save form
-        self.browser.find_elements_by_name("save")[-1].click()
+        self.browser.find_elements(By.NAME, "save")[-1].click()
         self.browser.refresh()
 
     @unittest.skip
@@ -1117,10 +1116,10 @@ class ControlComponentTests(OrganizationSiteFunctionalTests):
         comps_dropdown = wait_for_sleep_after(lambda: self.dropdown_option("selected_producer_element_form_id"))
 
 
-        self.assertEquals(len(comps_dropdown.options), 7)
+        self.assertEqual(len(comps_dropdown.options), 7)
 
         # Click on search bar
-        search_comps_txtbar = self.browser.find_elements_by_id("producer_element_search")
+        search_comps_txtbar = self.browser.find_elements(By.ID, "producer_element_search")
 
         # Type a few text combinations and make sure filtering is working
         # Need to click the new dropdown after sending keys
@@ -1129,7 +1128,7 @@ class ControlComponentTests(OrganizationSiteFunctionalTests):
         search_comps_txtbar[-1].click()
         search_comps_txtbar[-1].clear()
         search_comps_txtbar[-1].send_keys("Component")
-        self.browser.find_elements_by_id("selected_producer_element_form_id")[-1].click()# Ajax request
+        self.browser.find_elements(By.ID, "selected_producer_element_form_id")[-1].click()# Ajax request
         var_sleep(1)
         assert len(comps_dropdown.options) == 3
 
@@ -1137,7 +1136,7 @@ class ControlComponentTests(OrganizationSiteFunctionalTests):
         search_comps_txtbar[-1].click()
         search_comps_txtbar[-1].clear()
         search_comps_txtbar[-1].send_keys("2")
-        self.browser.find_elements_by_id("selected_producer_element_form_id")[-1].click()# Ajax request
+        self.browser.find_elements(By.ID, "selected_producer_element_form_id")[-1].click()# Ajax request
         var_sleep(1)
         # print("####### len(comps_dropdown.options)", len(comps_dropdown.options))
         assert len(comps_dropdown.options) == 2
@@ -1155,20 +1154,20 @@ class ControlComponentTests(OrganizationSiteFunctionalTests):
         assert self.find_selected_option("select#selected_producer_element_form_id").get_property("value") == component2_ele
 
         # Open a modal will with component statements related to the select component prototype
-        add_related_statements_btn = self.browser.find_elements_by_id("add_related_statements")
+        add_related_statements_btn = self.browser.find_elements(By.ID, "add_related_statements")
         add_related_statements_btn[-1].click()
         # Ensure we can't submit no component statements and that the alert pops up.
-        wait_for_sleep_after(lambda: self.browser.find_element_by_xpath("//*[@id='relatedcompModal']/div/div[1]/div[4]/button").click())
+        wait_for_sleep_after(lambda: self.browser.find_element(By.XPATH, "//*[@id='relatedcompModal']/div/div[1]/div[4]/button").click())
 
         # Open the first panel
-        component_element_btn = self.browser.find_element_by_id("related-panel-1")
+        component_element_btn = self.browser.find_element(By.ID, "related-panel-1")
         component_element_btn.click()
-        select_comp_statement_check = wait_for_sleep_after(lambda: self.browser.find_element_by_name("relatedcomps"))
+        select_comp_statement_check = wait_for_sleep_after(lambda: self.browser.find_element(By.NAME, "relatedcomps"))
         var_sleep(1)
         wait_for_sleep_after(lambda: select_comp_statement_check.click())
         var_sleep(1)
         # Add component statement
-        submit_comp_statement = wait_for_sleep_after(lambda: self.browser.find_element_by_xpath("//*[@id='relatedcompModal']/div/div[1]/div[4]/button"))
+        submit_comp_statement = wait_for_sleep_after(lambda: self.browser.find_element(By.XPATH, "//*[@id='relatedcompModal']/div/div[1]/div[4]/button"))
         submit_comp_statement.click()
 
 class StatementUITests(OrganizationSiteFunctionalTests):

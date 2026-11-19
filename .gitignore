@@ -129,3 +129,4 @@ environment.okta.json
 
 # branding
 *_branding
+.venv/

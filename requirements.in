@@ -5,9 +5,9 @@
 # Common Python Packages
 python-dateutil # Simplified BSD License
 Pillow>=8.3.2 # MIT-like License
-Jinja2==3.0.3 # BSD License
-setuptools # MIT License
-urllib3==2.0.3 # MIT License
+Jinja2>=3.1.6 # BSD License
+setuptools<81 # MIT License -- pkg_resources (removed in setuptools 81) is still needed by the "fs" package
+urllib3>=2.5.0 # MIT License
 
 # Less Common Python Packages
 html5lib # MIT License
@@ -20,26 +20,27 @@ graphviz # MIT License
 fs # BSD License
 PyGithub # LGPL License
 GitPython # BSD License
-Pygments==2.7.4 # BSD License
+Pygments # BSD License
 termcolor # MIT License
 xxhash # BSD License
 importlib-resources # Apache License
-pyinstrument==3.2.0 # BSD License
-cryptography==41.0.0 # LICENSE.APACHE or LICENSE.BSD
-pyopenssl==23.2.0 # Apache 2.0
-compliance-trestle==2.0.0 # OSI Approved :: Apache Software License
+pyinstrument # BSD License
+cryptography # LICENSE.APACHE or LICENSE.BSD
+pyopenssl # Apache 2.0
+compliance-trestle # OSI Approved :: Apache Software License
 markdown # As Is Custom License
 xlsxwriter # BSD 2-Clause License
-tomli==2.0.1 # MIT License
+tomli # MIT License
 
 jsonschema # MIT License
 filetype # MIT License
 # Common Django Packages
-Django==3.2.19 # BSD License
+Django>=5.2,<5.3 # BSD License
 django-allauth # MIT License
 django-bootstrap3 # BSD 3-Clause License
 importlib-metadata>=1.7.0 # Apache License 2.0
-django-notifications-hq==1.6 # MIT License
+# 1.9.0 (Django 5.x support) is tagged upstream but not published to PyPI; pinned by hash in requirements.txt.
+django-notifications-hq @ https://github.com/django-notifications/django-notifications/archive/refs/tags/1.9.0.tar.gz # BSD License
 jsonfield # MIT License
 dj_database_url # BSD License
 whitenoise # MIT License
@@ -52,15 +53,15 @@ sqlalchemy>=2.0.0b1 # MIT License
 pkgutil-resolve-name # MIT License
 
 # Logging
-JSON-log-formatter==0.2.0 # MIT License
+JSON-log-formatter # MIT License
 
 # Rest Framework
-djangorestframework==3.12.4 # BSD License
-djangorestframework-filters==1.0.0.dev0 # MIT License
-drf-yasg==1.20.0 # BSD License
-djangorestframework-recursive==0.1.2 # ISC License
-drf-nested-routers==0.93.3 # Apache License 2.0
-mozilla-django-oidc==1.2.4 # Mozilla Public License Version 2.0
+djangorestframework>=3.16 # BSD License
+django-filter # BSD License (replaces unmaintained djangorestframework-filters)
+drf-yasg # BSD License
+djangorestframework-recursive # ISC License
+drf-nested-routers # Apache License 2.0
+mozilla-django-oidc # Mozilla Public License Version 2.0
 
 # NLP
 # dataset # MIT License
@@ -72,7 +73,6 @@ pandas # BSD License (BSD-3-Clause)
 Unidecode # GNU General Public License
 wordcloud # MIT License
 numpy>=1.23.0 # BSD 3-Clause "New" or "Revised" License
-backports.zoneinfo==0.2.1 # Apache 2.0
 
 # Python Packages Developed by GovReady and/or Josh
 rtyaml # CC0
@@ -102,8 +102,8 @@ rfc5424-logging-handler # BSD License
 
 # Development & testing only
 bandit # Apache License 2.0
-coverage==6.0b1 # Apache License 2.0
-selenium==4.9.1 # Apache License 2.0 #urllib3 conflict with selenium 4.2.0 - 4.9.0
+coverage # Apache License 2.0
+selenium # Apache License 2.0 #urllib3 conflict with selenium 4.2.0 - 4.9.0
 safety # MIT License
 parsel # BSD License
 
@@ -118,14 +118,12 @@ openpyxl # MIT License
 django-session-security # MIT License
 
 # Profiling
-nplusone==1.0.0 # MIT License
-django-querycount==0.7.0 # MIT License
+nplusone # MIT License
+django-querycount # MIT License
 
 # Helper Library
-django-extensions==3.1.2 # MIT License
+django-extensions # MIT License
 
-# Excel Parsing
-python-xlsxio==0.1.3 # MIT License
 
 # Admin UI helper
-django-json-widget==1.1.1 # MIT License
+django-json-widget # MIT License

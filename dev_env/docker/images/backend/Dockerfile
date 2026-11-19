@@ -1,12 +1,12 @@
-# Ubuntu 20.04 focal-20210119
-FROM ubuntu:focal-20210119
+# Ubuntu 24.04 LTS (noble)
+FROM ubuntu:24.04
 
 # Update package list.
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Set up the locale.
 RUN apt-get update && \
-  apt-get install -y locales openssh-sftp-server openssh-server xvfb libfontconfig libmariadbclient-dev && \
+  apt-get install -y locales openssh-sftp-server openssh-server xvfb libfontconfig libmariadb-dev && \
   echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
   dpkg-reconfigure locales && \
   update-locale LANG=en_US.UTF-8
@@ -15,7 +15,7 @@ ENV LC_ALL=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 
 RUN echo "root:root" | chpasswd && \
-  mkdir /var/run/sshd
+  mkdir -p /var/run/sshd
 
 # Set up the timezone.
 RUN apt-get update && apt-get install -y --no-install-recommends tzdata && \
@@ -25,30 +25,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends tzdata && \
 # Install GovReady-Q prerequisites.
 RUN apt-get update && apt-get -y install \
   unzip git curl jq \
-  python3 python3-pip \
-  python3-yaml \
-  graphviz pandoc \
-  gunicorn
+  python3 python3-pip python3-venv python3-dev build-essential \
+  libmagic1 graphviz pandoc
 
-ENV CHROME_VERSION "google-chrome-stable"
-RUN sed -i -- 's&deb http://deb.debian.org/debian jessie-updates main&#deb http://deb.debian.org/debian jessie-updates main&g' /etc/apt/sources.list \
-  && apt-get update && apt-get install wget -y
-ENV CHROME_VERSION "google-chrome-stable"
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list \
-  && apt-get update && apt-get -qqy install ${CHROME_VERSION:-google-chrome-stable}
-
-# Chromium for Headless Selenium tests
-RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip \
-    && unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+# Google Chrome for headless Selenium tests. Selenium (4.6+) downloads the
+# matching chromedriver automatically via Selenium Manager.
+RUN apt-get update && apt-get install -y --no-install-recommends wget gnupg ca-certificates \
+  && install -d -m 0755 /etc/apt/keyrings \
+  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg \
+  && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+  && apt-get update && apt-get install -y google-chrome-stable
 ENV DISPLAY=:99
+
+# Ubuntu 24.04's system Python is "externally managed" (PEP 668), so install
+# Python packages into a virtual environment that is first on the PATH.
+RUN python3 -m venv /opt/venv
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Put the Python source code here.
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install -y wkhtmltopdf;
+RUN apt-get update && apt-get install -y wkhtmltopdf
 
-# Upgrade pip to version 20.1+ - IMPORTANT
 RUN python3 -m pip install --upgrade pip
 RUN pip3 install ipdb
 

@@ -1,6 +1,22 @@
 GovReady-Q Release Notes
 ========================
 
+v0.12.0-dev (unreleased)
+---------------------------
+
+**Developer changes**
+
+* Upgrade end-of-support software:
+  * Python 3.6/3.7/3.8 -> Python 3.12 (Docker scripts, CI images, install checks).
+  * Django 3.2 -> Django 5.2 LTS, with compatible versions of Django REST Framework, django-allauth, drf-yasg, mozilla-django-oidc, compliance-trestle and other libraries.
+  * Ubuntu 20.04 -> Ubuntu 24.04 LTS for the backend development image.
+  * Node.js 16 -> Node.js 24 LTS for the frontend development image.
+  * PostgreSQL 13 -> PostgreSQL 17 for the development database. Existing development database volumes must be dumped and restored, or recreated.
+* Replace unmaintained djangorestframework-filters with django-filter.
+* Replace python-xlsxio (does not build on Python 3.12) with openpyxl in the `import_csam_statements` command.
+* Convert `index_together` to `Meta.indexes` (with migrations that rename the existing indexes).
+* Update Selenium tests for the Selenium 4 API.
+
 v0.11.8 (June 11, 2023)
 ---------------------------
 

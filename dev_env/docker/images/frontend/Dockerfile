@@ -1,3 +1,3 @@
-FROM node:16-alpine3.11
+FROM node:24-alpine
 
 WORKDIR /usr/src/app/frontend

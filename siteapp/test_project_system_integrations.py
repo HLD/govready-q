@@ -1,3 +1,4 @@
+from selenium.webdriver.common.by import By
 # This module tests integrations between projects and systems.
 # This is a separate file because the tests cut across modules.
 
@@ -33,9 +34,9 @@ class ProjectSystemPermissionsUnitTests(SeleniumTest):
         self.click_element("li#tab-signin")
         self.fill_field("#id_login", username or self.user.username)
         self.fill_field("#id_password", password or self.user.clear_password)
+        login_form = self.browser.find_element(By.CSS_SELECTOR, "form#login_form")
         self.click_element("form#login_form button[type=submit]")
-        if "Warning Message" in self.browser.title:
-            self.click_element("#btn-accept")
+        self.accept_warning_message_after_navigation(login_form)
 
     def test_project_system_element_permission_non_admin_user(self):
         """Test non-admin user inviting another non-admin correctly assigns project, system and root_element permissions
@@ -121,9 +122,9 @@ class StatementUITests(SeleniumTest):
         self.click_element("li#tab-signin")
         self.fill_field("#id_login", username or self.user.username)
         self.fill_field("#id_password", password or self.user.clear_password)
+        login_form = self.browser.find_element(By.CSS_SELECTOR, "form#login_form")
         self.click_element("form#login_form button[type=submit]")
-        if "Warning Message" in self.browser.title:
-            self.click_element("#btn-accept")
+        self.accept_warning_message_after_navigation(login_form)
 
     def test_homepage(self):
         self.browser.get(self.url("/controls/"))

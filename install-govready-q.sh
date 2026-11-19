@@ -63,7 +63,7 @@ done
 
 
 # make sure we're not running in an environment with the wrong Python
-# command names (Docker, for instance, has python3.6 as the command)
+# command names (some environments only provide a versioned command such as python3.12)
 function check_has_command() {
 	which $1 >/dev/null 2>&1
 	return $?

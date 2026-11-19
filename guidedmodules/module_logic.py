@@ -4,6 +4,7 @@ from urllib.parse import urlunparse
 
 from django.conf import settings
 from jinja2.sandbox import SandboxedEnvironment
+import markupsafe
 
 from controls.enums.statements import StatementTypeEnum
 from controls.oscal import Catalogs, Catalog
@@ -577,11 +578,11 @@ def render_content(content, answers, output_format, source,
         if answers:
             def escapefunc(question, task, has_answer, answerobj, value):
                 # Don't perform any escaping. The caller will wrap the
-                # result in jinja2.Markup().
+                # result in markupsafe.Markup().
                 return str(value)
             def errorfunc(message, short_message, long_message, **format_vars):
                 # Wrap in jinja2.Markup to prevent auto-escaping.
-                return jinja2.Markup("<" + message.format(**format_vars) + ">")
+                return markupsafe.Markup("<" + message.format(**format_vars) + ">")
             tc = TemplateContext(answers, escapefunc,
                 root=True,
                 errorfunc=errorfunc,
@@ -798,11 +799,11 @@ def render_content(content, answers, output_format, source,
         if template_format in ("text", "markdown", "xml"):
             def escapefunc(question, task, has_answer, answerobj, value):
                 # Don't perform any escaping. The caller will wrap the
-                # result in jinja2.Markup().
+                # result in markupsafe.Markup().
                 return str(value)
             def errorfunc(message, short_message, long_message, **format_vars):
                 # Wrap in jinja2.Markup to prevent auto-escaping.
-                return jinja2.Markup("<" + message.format(**format_vars) + ">")
+                return markupsafe.Markup("<" + message.format(**format_vars) + ">")
 
         elif template_format == "html":
             escapefunc = HtmlAnswerRenderer(show_metadata=show_answer_metadata, use_data_urls=use_data_urls)
@@ -811,13 +812,13 @@ def render_content(content, answers, output_format, source,
                     # In HTML outputs with popovers for answer metadata, use a popover
                     # TODO: Display detailed error info in task-finished.html more explicitly
                     # renders popovers in templates.
-                    return jinja2.Markup("""
+                    return markupsafe.Markup("""
                     <span class="text-danger"
                      data-toggle="popover" data-content="{}">
                         &lt;{}&gt;
                     </span>
-                    """.format(jinja2.escape(long_message.format(**format_vars)),
-                               jinja2.escape(short_message.format(**format_vars))))
+                    """.format(markupsafe.escape(long_message.format(**format_vars)),
+                               markupsafe.escape(short_message.format(**format_vars))))
                 else:
                     # Simple error message for HTML output when popovers are not
                     # being used. Auto-escaping will take care of escaping.
@@ -1665,7 +1666,7 @@ class TemplateContext(Mapping):
                             {}, show_answer_metadata=self.context.show_answer_metadata)
 
                         # Mark it as safe.
-                        from jinja2 import Markup
+                        from markupsafe import Markup
                         return Markup(content)
                 else:
                     raise ValueError("%s is not the id of an output document in %s." % (item, self.context.module_answers.module))
@@ -1834,7 +1835,7 @@ class RenderedAnswer:
             # Use a locale to generate nice human-readable numbers.
             # The locale is set on app startup using locale.setlocale in settings.py.
             import locale
-            value = locale.format(
+            value = locale.format_string(
                 "%d" if self.question_type == "integer" else "%g",
                 self.answer,
                 grouping=True)

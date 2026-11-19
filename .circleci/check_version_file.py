@@ -1,15 +1,14 @@
 import sys
 import re
-from pkg_resources import parse_version
+from packaging.version import Version, InvalidVersion
 
 with open("VERSION") as f:
 	VERSION = f.read().strip()
 
-# Parse. Valid versions yield a SetupToolsVersion object.
-# Invalid versions yield SetupToolsLegacyVersion objects.
-v = parse_version(VERSION)
-
-if "Legacy" in type(v).__name__:
+# Parse. Invalid (non-PEP440) versions raise InvalidVersion.
+try:
+	v = Version(VERSION)
+except InvalidVersion:
 	print("ERROR: The version number {} is not a PEP440-compliant version number.".format(repr(VERSION)))
 	sys.exit(1)
 

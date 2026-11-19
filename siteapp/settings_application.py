@@ -159,7 +159,7 @@ DEFAULT_FROM_EMAIL = SERVER_EMAIL
 NOTIFICATION_FROM_EMAIL_PATTERN = "%s via GovReady Q <q@" + EMAIL_DOMAIN + ">"
 NOTIFICATION_REPLY_TO_EMAIL_PATTERN = "%s <q+notification+%d+%s@" + EMAIL_DOMAIN + ">"
 NOTIFICATION_REPLY_TO_EMAIL_REGEX = r"q\+notification\+(\d+)\+([a-f\d\-]+)@" + re.escape(EMAIL_DOMAIN) + ""
-DEFAULT_FILE_STORAGE = 'dbstorage.storage.DatabaseStorage'
+STORAGES["default"] = {"BACKEND": 'dbstorage.storage.DatabaseStorage'}
 NOTIFICATIONS_USE_JSONFIELD = True # allows us to store extra data on Notification instances
 
 GOVREADY_CMS_API_AUTH = environment.get('govready_cms_api_auth')

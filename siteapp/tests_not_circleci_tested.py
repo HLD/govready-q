@@ -10,6 +10,7 @@
 # If paths differ on your system, you may need to set the PATH system
 # environment variable and the options.binary_location field below.
 
+from selenium.webdriver.common.by import By
 import os
 import os.path
 import pathlib
@@ -381,9 +382,9 @@ class PortfolioProjectTests(OrganizationSiteFunctionalTests):
         self.browser.get(self.url("/"))
         self.click_element('#tab-register')
         self._fill_in_signup_form("test+account@q.govready.com", "portfolio_user")
+        signup_button = self.browser.find_element(By.CSS_SELECTOR, "#signup-button")
         self.click_element("#signup-button")
-        if "Warning Message" in self.browser.title:
-            self.click_element("#btn-accept")
+        self.accept_warning_message_after_navigation(signup_button)
 
         # Go to portfolio page
         self.browser.get(self.url("/portfolios"))
@@ -539,7 +540,7 @@ class PortfolioProjectTests(OrganizationSiteFunctionalTests):
         # Navigate to portfolios
         self.browser.get(self.url("/portfolios"))
         # Click on the pencil anchor tag to edit
-        self.browser.find_elements_by_class_name("portfolio-project-link")[-1].click()
+        self.browser.find_elements(By.CLASS_NAME, "portfolio-project-link")[-1].click()
 
         # Edit title to a real new name and press update
         self.clear_and_fill_field("#id_title", "new me")
@@ -553,7 +554,7 @@ class PortfolioProjectTests(OrganizationSiteFunctionalTests):
         self.assertIn("The portfolio 'new me' has been updated.", self._getNodeText("div.alert.fade.in.alert-info"))
 
         # verify new description by journeying back to edit_form
-        self.browser.find_elements_by_class_name("portfolio-project-link")[-1].click()
+        self.browser.find_elements(By.CLASS_NAME, "portfolio-project-link")[-1].click()
 
     def test_delete_portfolio(self):
         """

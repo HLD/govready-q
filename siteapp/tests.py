@@ -10,6 +10,9 @@
 # If paths differ on your system, you may need to set the PATH system
 # environment variable and the options.binary_location field below.
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.expected_conditions import staleness_of
+from selenium.webdriver.support.ui import WebDriverWait
 import os
 import os.path
 import pathlib
@@ -126,24 +129,23 @@ class SeleniumTest(StaticLiveServerTestCase):
                 "safebrowsing.enabled": True
             })
         if HEADLESS:
-            options.add_argument('--headless')
+            options.add_argument('--headless=new')
 
         if DOCKER:
             if HEADLESS:
                 options.add_argument('--no-sandbox')
-                cls.browser = selenium.webdriver.Chrome(chrome_options=options)
+                cls.browser = selenium.webdriver.Chrome(options=options)
             else:
                 cls.browser = selenium.webdriver.Remote(command_executor='http://selenium-hub:4444/wd/hub',
-                                                        desired_capabilities=option[1],
                                                         options=options)
         else:
             # Depreciated
             # Set up selenium Chrome browser for Windows or Linux
             if DOS:
                 # TODO: Find out a way to get chromedriver implicit executable path in WSL
-                cls.browser = selenium.webdriver.Chrome(executable_path='chromedriver.exe', options=options)
+                cls.browser = selenium.webdriver.Chrome(service=selenium.webdriver.ChromeService(executable_path='chromedriver.exe'), options=options)
             else:
-                cls.browser = selenium.webdriver.Chrome(chrome_options=options)
+                cls.browser = selenium.webdriver.Chrome(options=options)
 
         cls.browser.implicitly_wait(5)  # seconds
 
@@ -203,47 +205,57 @@ class SeleniumTest(StaticLiveServerTestCase):
         return urllib.parse.urljoin(self.live_server_url, path)
 
     def clear_field(self, css_selector):
-        self.browser.find_element_by_css_selector(css_selector).clear()
+        self.browser.find_element(By.CSS_SELECTOR, css_selector).clear()
 
     def fill_field(self, css_selector, text):
-        self.browser.find_element_by_css_selector(css_selector).send_keys(text)
+        self.browser.find_element(By.CSS_SELECTOR, css_selector).send_keys(text)
 
     def clear_and_fill_field(self, css_selector, text):
         self.clear_field(css_selector)
         self.fill_field(css_selector, text)
 
     def click_element_with_link_text(self, text):
-        elem = self.browser.find_elements_by_link_text(text)
+        elem = self.browser.find_elements(By.LINK_TEXT, text)
         elem[0].click()
 
     def click_element_with_xpath(self, xpath):
-        elem = self.browser.find_elements_by_xpath(xpath)
+        elem = self.browser.find_elements(By.XPATH, xpath)
         elem[0].click()
 
     def click_element(self, css_selector):
         # ensure element is on screen or else it can't be clicked
         # see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
-        elem = self.browser.find_element_by_css_selector(css_selector)
+        elem = self.browser.find_element(By.CSS_SELECTOR, css_selector)
         self.browser.execute_script(
             "arguments[0].scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'nearest' });", elem)
         elem.click()
 
+    def accept_warning_message_after_navigation(self, old_element):
+        # Wait for the page containing old_element to be replaced, then accept the
+        # warning banner page if it is shown. Without the wait, the title check can
+        # run before the next page has loaded.
+        WebDriverWait(self.browser, 20).until(staleness_of(old_element))
+        if "Warning Message" in self.browser.title:
+            accept_button = self.browser.find_element(By.CSS_SELECTOR, "#btn-accept")
+            self.click_element("#btn-accept")
+            WebDriverWait(self.browser, 20).until(staleness_of(accept_button))
+
     def find_selected_option(self, css_selector):
-        selected_option = self.browser.find_element_by_css_selector(f"{css_selector}")
+        selected_option = self.browser.find_element(By.CSS_SELECTOR, f"{css_selector}")
         return selected_option
 
     def select_option(self, css_selector, value):
         from selenium.webdriver.support.select import Select
-        e = self.browser.find_element_by_css_selector(css_selector)
+        e = self.browser.find_element(By.CSS_SELECTOR, css_selector)
         Select(e).select_by_value(value)
 
     def select_option_by_visible_text(self, css_selector, text):
         from selenium.webdriver.support.select import Select
-        e = self.browser.find_element_by_css_selector(css_selector)
+        e = self.browser.find_element(By.CSS_SELECTOR, css_selector)
         Select(e).select_by_visible_text(text)
 
     def _getNodeText(self, css_selector):
-        node_text = self.browser.find_element_by_css_selector(css_selector).text
+        node_text = self.browser.find_element(By.CSS_SELECTOR, css_selector).text
         node_text = re.sub(r"\s+", " ", node_text)  # normalize whitespace
         return node_text
 
@@ -256,7 +268,7 @@ class SeleniumTest(StaticLiveServerTestCase):
     def assertNodeNotVisible(self, css_selector):
         from selenium.common.exceptions import NoSuchElementException
         with self.assertRaises(NoSuchElementException):
-            self.browser.find_element_by_css_selector(css_selector)
+            self.browser.find_element(By.CSS_SELECTOR, css_selector)
 
     def pop_email(self):
         self.assertTrue(self.has_more_email())
@@ -461,9 +473,9 @@ class OrganizationSiteFunctionalTests(SeleniumTest):
         self.click_element("li#tab-signin")
         self.fill_field("#id_login", username or self.user.username)
         self.fill_field("#id_password", password or self.user.clear_password)
+        login_form = self.browser.find_element(By.CSS_SELECTOR, "form#login_form")
         self.click_element("form#login_form button[type=submit]")
-        if "Warning Message" in self.browser.title:
-            self.click_element("#btn-accept")
+        self.accept_warning_message_after_navigation(login_form)
 
     def _new_project(self):
         self.browser.get(self.url("/store"))

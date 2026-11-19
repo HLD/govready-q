@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 from django.urls import include
 from rest_framework import routers
 from rest_framework_nested.routers import NestedSimpleRouter
@@ -13,6 +13,6 @@ module_router = NestedSimpleRouter(router, 'modules', lookup='modules')
 module_router.register('questions', ModuleQuestionViewSet, basename='module-questions')
 
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^', include(module_router.urls)),
+    re_path(r'^', include(router.urls)),
+    re_path(r'^', include(module_router.urls)),
 ]

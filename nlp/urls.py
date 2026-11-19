@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.urls import include, re_path
 from django.contrib import admin
 from django.conf import settings
 
@@ -16,20 +16,20 @@ from siteapp.settings import *
 
 urlpatterns = [
 
-    url(r'^nlp_index$', views.index, name="nlp_index"),
-    # url(r'^nlp_index$', views.component_library, name="component_library"),
+    re_path(r'^nlp_index$', views.index, name="nlp_index"),
+    # re_path(r'^nlp_index$', views.component_library, name="component_library"),
 
 
 # COPIED LINKS
     # Docs
-    # url('doc/', include('django.contrib.admindocs.urls')),
+    # re_path('doc/', include('django.contrib.admindocs.urls')),
 
-    # url(r'^(?P<system_id>.*)/controls/selected/export/xacta/xlsx$', views.controls_selected_export_xacta_xslx, name="controls_selected"),
+    # re_path(r'^(?P<system_id>.*)/controls/selected/export/xacta/xlsx$', views.controls_selected_export_xacta_xslx, name="controls_selected"),
 
     # Catalogs
-    # url(r'^$', views.catalogs),
-    # url(r'^catalogs$', views.catalogs),
-    # url(r'^catalogs/(?P<catalog_key>.*)/$', views.catalog),
+    # re_path(r'^$', views.catalogs),
+    # re_path(r'^catalogs$', views.catalogs),
+    # re_path(r'^catalogs/(?P<catalog_key>.*)/$', views.catalog),
 
 
 ]

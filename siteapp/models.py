@@ -100,6 +100,8 @@ class User(AbstractUser, BaseModel):
         # We've got the content. Make a fingerprint.
         import xxhash, base64
         payload = pic['content_dataurl']
+        if isinstance(payload, str):
+            payload = payload.encode("utf-8")
         fingerprint = base64.urlsafe_b64encode(
             xxhash.xxh64(payload).digest()
         ).decode('ascii').rstrip("=")
@@ -128,7 +130,7 @@ class User(AbstractUser, BaseModel):
         # a stable set of random bytes to use to select CSS styles.
         import xxhash
         payload = "%d|%s|" % (self.id, self.username)
-        digest = xxhash.xxh64(payload).digest()
+        digest = xxhash.xxh64(payload.encode("utf-8")).digest()
 
         # Choose two colors at random using the bytes of the digest.
         color1 = User.random_colors[digest[0] % len(User.random_colors)]

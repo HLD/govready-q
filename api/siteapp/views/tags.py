@@ -12,4 +12,4 @@ class TagViewSet(ReadWriteViewSet):
                                            create=WriteTagSerializer,
                                            update=WriteTagSerializer,
                                            destroy=WriteTagSerializer)
-    filter_class = TagFilter
+    filterset_class = TagFilter

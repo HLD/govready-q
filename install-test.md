@@ -7,7 +7,7 @@ This document version: 2021-03-07-002
 ## System Requirements
 
 * A Windows, Mac, or Linux computer with [Python 3](https://www.python.org/downloads/) and Git installed.
-* Python 3.6 or higher will be required, but we are interested in seeing how the script responds to versions < 3.6, so please don't upgrade Python right away if you have a lower version.
+* Python 3.12 or higher will be required, but we are interested in seeing how the script responds to versions < 3.12, so please don't upgrade Python right away if you have a lower version.
   * On Macs, you should already have Python 3 and Git installed.
   * On Macs, you should already have Python 3 and Git installed.
   * On Windows, you may need to install a [Windows version of Python](https://www.python.org/downloads/windows/), and [Git for Windows](https://gitforwindows.org/) or a [Windows version of Git](https://git-scm.com/download/win).  Or, you can use [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
@@ -45,7 +45,7 @@ At the end of your testing, you may delete the GovReady-Q directory to reclaim t
 
 (This section has not been completed yet.)
 
-## Before You Install - Ubuntu
+## Before You Install - Ubuntu (24.04 LTS or later)
 
 Some additional dependencies are required for Linux Ubuntu.
 
@@ -70,9 +70,9 @@ graphviz pandoc \
 language-pack-en-base language-pack-en
 ```
 
-## Before You Install - CentOS 8, RHEL 8, Fedora 8
+## Before You Install - RHEL 9/10, Rocky/AlmaLinux 9, Fedora
 
-Some additional dependencies are required for Linux CentOS, RHEL, Fedora.
+Some additional dependencies are required for Linux RHEL, Rocky/AlmaLinux, Fedora.
 
 Do these shell commands to update package list.
 
@@ -86,13 +86,13 @@ Do these shell commands to install the OS dependencies for GovReady-Q.
 ```shell
 # Install dependencies
 dnf install \
-python3 python3-devel gcc-c++.x86_64 \
+python3.12 python3.12-devel python3.12-pip gcc-c++.x86_64 \
 unzip git jq \
 graphviz
 
-# for pandoc, enable PowerTools repository
-dnf install dnf-plugins-core
-dnf config-manager --set-enabled PowerTools
+# for pandoc, enable the CodeReady Builder (CRB) repository and EPEL
+dnf install dnf-plugins-core epel-release
+dnf config-manager --set-enabled crb
 dnf install pandoc
 ```
 

@@ -68,12 +68,12 @@ class ImportExportProjectTests(OrganizationSiteFunctionalTests):
         # wait_for_sleep_after(lambda: self.click_element("#menu-btn-project-import"))
         self.click_element("#menu-btn-project-import")
 
-        file_input = self.browser.find_element_by_css_selector("#id_file")
+        file_input = self.browser.find_element(By.CSS_SELECTOR, "#id_file")
 
         file_path = os.getcwd() + "/fixtures/test_project_import_data.json"
         # convert filepath if necessary and send keys
         self.filepath_conversion(file_input, file_path, "sendkeys")
-        self.browser.find_element_by_id("import_project_submit").click()
+        self.browser.find_element(By.ID, "import_project_submit").click()
 
         # Check the new number of projects, and validate that it's the same
         project_num = Project.objects.all().count()

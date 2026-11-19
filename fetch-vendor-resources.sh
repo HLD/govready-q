@@ -52,22 +52,9 @@ mkdir -p $VENDOR/js
 
 # Fetch resources.
 
-# sqlite3 3.8.3 (Public Domain)
-# Django 2.2 requires SQLite 3.8.3 or later; on CentOS 7 an upgrade is needed
-# We borrow the package from Fedora Project, https://koji.fedoraproject.org/koji/packageinfo?packageID=485
-if command -v rpm > /dev/null 2>&1 ; then
-  if test $(python3.6 -c "import sqlite3; print(sqlite3.sqlite_version)" ) != 3.8.3; then
-    echo "Upgrading SQLite to 3.8.3"
-    download \
-      https://kojipkgs.fedoraproject.org/packages/sqlite/3.8.3/1.fc20/x86_64/sqlite-3.8.3-1.fc20.x86_64.rpm \
-      /tmp/sqlite-3.8.3-1.fc20.x86_64.rpm \
-      '4c976fc17e3676ce76aa71ce604be6d16cef36c73515e9bf1ebcdbdc6cc6e7d4'
-    yum -y install /tmp/sqlite-3.8.3-1.fc20.x86_64.rpm
-    rm -f /tmp/sqlite-3.8.3-1.fc20.x86_64.rpm
-  else
-    echo "SQLite is 3.8.3 - Skipping upgrade"
-  fi
-fi
+# SQLite: Django 5.2 requires SQLite 3.31 or later. Use an OS that ships a
+# supported SQLite (e.g. Ubuntu 22.04+/Debian 12+/RHEL 9+) or use PostgreSQL.
+# (The former CentOS 7 workaround that installed a Fedora 20 SQLite RPM was removed.)
 
 # jQuery (MIT License)
 download \

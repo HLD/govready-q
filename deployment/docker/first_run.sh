@@ -57,8 +57,8 @@ done
 if [ $NONINTERACTIVE ];
 then
 	# python3 manage.py first_run --non-interactive
-	python3.6 manage.py first_run --non-interactive
+	python3 manage.py first_run --non-interactive
 else
 	# python3 manage.py first_run
-	python3.6 manage.py first_run
+	python3 manage.py first_run
 fi

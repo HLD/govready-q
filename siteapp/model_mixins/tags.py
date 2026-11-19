@@ -53,13 +53,13 @@ class TagView:
         return JsonResponse({"status": "ok", "data": tags})
 
 def build_tag_urls(path_prefix, model):
-    from django.conf.urls import url
+    from django.urls import re_path
     return [
-        url(rf'{path_prefix}tags/(\d+)/_add$', lambda *args, **kwargs: TagView.add_tag(*args, model, **kwargs),
+        re_path(rf'{path_prefix}tags/(\d+)/_add$', lambda *args, **kwargs: TagView.add_tag(*args, model, **kwargs),
             name=f"add_tag_to_{model.__name__.lower()}"),
-        url(rf'{path_prefix}tags/(\d+)/_remove$',
+        re_path(rf'{path_prefix}tags/(\d+)/_remove$',
             lambda *args, **kwargs: TagView.remove_tag(*args, model, **kwargs),
             name=f"remove_tag_from_{model.__name__.lower()}"),
-        url(rf'{path_prefix}tags/$', lambda *args, **kwargs: TagView.list_tags(*args, model, **kwargs),
+        re_path(rf'{path_prefix}tags/$', lambda *args, **kwargs: TagView.list_tags(*args, model, **kwargs),
             name=f"list_element_{model.__name__.lower()}"),
     ]

@@ -1,5 +1,5 @@
 from django.db.models import Q
-from rest_framework_filters import filters
+from django_filters import filters
 
 from api.base.filters import BaseFilterSet, FilterFields
 from siteapp.models import Tag

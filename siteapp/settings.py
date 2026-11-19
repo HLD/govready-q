@@ -136,7 +136,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ),
     'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework_filters.backends.ComplexFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
         # 'rest_framework.filters.OrderingFilter',
         'api.base.filters.RelatedOrderingFilter'
     ),
@@ -159,6 +159,7 @@ MIDDLEWARE = [
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
+	'allauth.account.middleware.AccountMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 	'simple_history.middleware.HistoryRequestMiddleware',
@@ -232,15 +233,18 @@ if "https" in environment:
         "WARNING: Use of 'https' environment paramenter deprecated. Please use 'govready-url' environment parameter in future.")
 
 ACCOUNT_ADAPTER = primary_app + '.good_settings_helpers.AllauthAccountAdapter'
-ACCOUNT_AUTHENTICATION_METHOD = 'username'
+ACCOUNT_LOGIN_METHODS = {'username'}
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_UNIQUE_EMAIL = False  # otherwise unconfirmed addresses may block real users
-ACCOUNT_EMAIL_REQUIRED = True  # otherwise pwd resets are not possible
-ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 15  # default of 5 is too low!
+# Email is required, otherwise pwd resets are not possible.
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+# Allow 15 failed login attempts per 5 minutes (allauth's default of 5 is too low!)
+ACCOUNT_RATE_LIMITS = {'login_failed': '15/5m/ip,15/5m/key'}
 ACCOUNT_LOGOUT_ON_GET = True  # allow simplified logout link
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
-ACCOUNT_PASSWORD_MIN_LENGTH = (4 if DEBUG else 6)  # in debugging, allow simple pwds
+# Minimum password length is enforced by AUTH_PASSWORD_VALIDATORS below
+# (allauth's ACCOUNT_PASSWORD_MIN_LENGTH setting was removed).
 
 # improve how the allauth forms are rendered using django-bootstrap forms,
 # in combination with a monkeypatch run elsewhere
@@ -265,6 +269,14 @@ if not DEBUG:
         },
         {
             'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        },
+    ]
+else:
+    # In debugging, allow simple passwords (min length 4, as before).
+    AUTH_PASSWORD_VALIDATORS = [
+        {
+            'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+            'OPTIONS': {'min_length': 4},
         },
     ]
 
@@ -375,7 +387,6 @@ USE_TZ = True
 
 LANGUAGE_CODE = 'en-us'
 USE_I18N = False
-USE_L10N = True
 
 # This might be redundant, but if we're using locale directly we
 # need to set this on startup.
@@ -472,11 +483,15 @@ SESSION_SECURITY_EXPIRE_AFTER = environment.get('session_security_expire_after',
 # The ManifestStaticFilesStorage is activated, too, for alternaye storing/serving of static assets.
 #
 uncollected_static_files = "siteapp/static"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static_root/'
 if environment.get("static"):
     STATIC_ROOT = environment["static"]
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+    STORAGES["staticfiles"] = {"BACKEND": 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'}
 # Check to make sure STATIC_ROOT is not `siteapp/static`
 siteapp_path = os.getcwd()
 if os.path.join(siteapp_path, STATIC_ROOT) == os.path.join(siteapp_path, "siteapp/static"):

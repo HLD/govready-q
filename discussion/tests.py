@@ -1,3 +1,4 @@
+from selenium.webdriver.common.by import By
 import os
 
 import requests
@@ -82,9 +83,9 @@ class DiscussionTests(SeleniumTest):
         self.click_element("li#tab-signin")
         self.fill_field("#id_login", self.user.username)
         self.fill_field("#id_password", self.user_pw)
+        login_form = self.browser.find_element(By.CSS_SELECTOR, "form#login_form")
         self.click_element("form#login_form button[type=submit]")
-        if "Warning Message" in self.browser.title:
-            self.click_element("#btn-accept")
+        self.accept_warning_message_after_navigation(login_form)
         self.assertRegex(self.browser.title, "Your Compliance Systems")
 
     def _new_project(self):
@@ -122,7 +123,7 @@ class DiscussionTests(SeleniumTest):
         var_sleep(.5)
         self.click_element("#discussion .comment-input button.btn-primary")
         var_sleep(1.5)# Give time for the image to upload.
-        img = wait_for_sleep_after(lambda: self.browser.find_element_by_css_selector(img_css_selector) )
+        img = wait_for_sleep_after(lambda: self.browser.find_element(By.CSS_SELECTOR, img_css_selector) )
         return img
 
     def test_validate_file_extension(self):
@@ -211,7 +212,7 @@ class DiscussionTests(SeleniumTest):
         wait_for_sleep_after(lambda: self._start_task())# wait for page to reload
 
         # Move past the introduction screen.
-        self.assertRegex(self.browser.title, "Next Question: Module Introduction")
+        wait_for_sleep_after(lambda: self.assertRegex(self.browser.title, "Next Question: Module Introduction"))
         self.click_element("#save-button")
         var_sleep(.8) # wait for page to reload
 
@@ -236,11 +237,11 @@ class DiscussionTests(SeleniumTest):
 
         # Check that the element was *not* added to the page.
         with self.assertRaises(NoSuchElementException):
-            self.browser.find_element_by_css_selector('#injectiontest1')
+            self.browser.find_element(By.CSS_SELECTOR, '#injectiontest1')
 
         # Check that the script tag was removed entirely.
         with self.assertRaises(NoSuchElementException):
-            self.browser.find_element_by_css_selector('#injectiontest2')
+            self.browser.find_element(By.CSS_SELECTOR, '#injectiontest2')
 
         # Test some special characters
         wait_for_sleep_after(lambda: self.fill_field("#discussion-your-comment", "¥"))
@@ -266,7 +267,7 @@ class DiscussionTests(SeleniumTest):
 
         # var_sleep(.5)# Give time for the image to upload.
         # # Test that we have an image.
-        # img = self.browser.find_element_by_css_selector('.comment[data-id="4"] .comment-text p img')
+        # img = self.browser.find_element(By.CSS_SELECTOR, '.comment[data-id="4"] .comment-text p img')
         # # self.assertIsNotNone(img)
         #
         # # Test that valid PNG image actually exists with valid content type.
@@ -281,7 +282,7 @@ class DiscussionTests(SeleniumTest):
         # var_sleep(1)  # Give time for the image to upload.
 
         # # Test that we still have an image.
-        # img = self.browser.find_element_by_css_selector('.comment[data-id="5"] .comment-text p img')
+        # img = self.browser.find_element(By.CSS_SELECTOR, '.comment[data-id="5"] .comment-text p img')
         # self.assertIsNotNone(img)
 
         # # Getting content at url
@@ -326,7 +327,7 @@ class DiscussionTests(SeleniumTest):
         # # var_sleep(1)  # Give time for the image to upload.
         #
         # # # Test that we still have an image.
-        # # img = self.browser.find_element_by_css_selector('.comment[data-id="5"] .comment-text p img')
+        # # img = self.browser.find_element(By.CSS_SELECTOR, '.comment[data-id="5"] .comment-text p img')
         # # self.assertIsNotNone(img)
         #
         # # # Getting content at url
