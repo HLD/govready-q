@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Modal } from 'react-bootstrap';
+import { Modal } from './bootstrap3';
 
 import { hide, show } from './modalSlice';
 

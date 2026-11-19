@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { renderInto } from '../../shared/render';
 import { componentTagsStateSlice } from "./slice"
 import { Provider } from "react-redux";
 import store from "../../../store";
@@ -15,13 +15,12 @@ window.renderElementTags = (elementID, existingTags) => {
         $("#content").show();
     });
 
-    ReactDOM.render(
+    renderInto(document.getElementById('show-tags'), (
         <Provider store={store}>
             <TagDropdown
                 action={setTags}
                 updateTagsURL={`/api/v2/elements/${elementID}/tags/`}
                 existingTags={existingTags} />
-        </Provider>,
-        document.getElementById('show-tags')
-    );
+        </Provider>
+    ));
 };

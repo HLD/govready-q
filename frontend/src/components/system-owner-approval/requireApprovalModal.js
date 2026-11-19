@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 import {
   Tooltip,
   Button,
@@ -13,10 +13,10 @@ import {
   FormGroup, 
   Row,
   Modal
-} from 'react-bootstrap';
+} from '../shared/bootstrap3';
 import { ReactModal } from '../shared/modal';
 
-const datagridStyles = makeStyles({
+const datagridStyles = makeStyles()({
   root: {
     "& .MuiDataGrid-renderingZone": {
       maxHeight: "none !important"
@@ -39,7 +39,7 @@ const datagridStyles = makeStyles({
 });
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   root: {
     fontweight: 900,
   },
@@ -51,8 +51,8 @@ const useStyles = makeStyles({
 });
 
 export const RequireApprovalModal = ({ userId, systemId, systemName, elementId, require_approval, uuid }) => {
-  const classes = useStyles();
-  const dgClasses = datagridStyles();
+  const { classes } = useStyles();
+  const { classes: dgClasses } = datagridStyles();
   const [data, setData] = useState([]);
   const [openRequireApprovalModal, setOpenRequireApprovalModal] = useState(false);
 

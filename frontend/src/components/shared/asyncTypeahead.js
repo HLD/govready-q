@@ -9,14 +9,18 @@ import FormControl from "@mui/material/FormControl";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import { AsyncTypeahead } from "react-bootstrap-typeahead";
 import "react-bootstrap-typeahead/css/Typeahead.css";
-import MenuItem from "@mui/material/MenuItem";
-import { makeStyles } from "@mui/styles";
+import { makeStyles } from 'tss-react/mui';
 import "react-bootstrap-typeahead/css/Typeahead.css";
 
 const PER_PAGE = 50;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   menuItem: {
+    // Layout previously provided by MUI's MenuItem.
+    display: "flex",
+    alignItems: "center",
+    minHeight: "36px",
+    padding: "6px 16px",
     zIndex: 1,
     background: "whitesmoke",
     borderBottom: "1px solid black",
@@ -55,7 +59,7 @@ export const AsyncPagination = ({ endpoint, order, onSelect, excludeIds, searchB
   });
   const [cache, setCache] = useState({});
   const [selected, setSelected] = useState([]);
-  const classes = useStyles();
+  const { classes } = useStyles();
   const elementRef = useRef(null);
 
   useEffect(() => {
@@ -144,7 +148,9 @@ export const AsyncPagination = ({ endpoint, order, onSelect, excludeIds, searchB
         <FormControl variant="standard" style={{ width: searchBarLength }}>
           <Input
             {...inputProps}
-            ref={(input) => {
+            // inputRef (not ref): MUI's Input `ref` points at its wrapper <div>,
+            // but react-bootstrap-typeahead needs the <input> element itself.
+            inputRef={(input) => {
               // Be sure to correctly handle these refs. In many cases, both can simply receive
               // the underlying input node, but `referenceElementRef can receive a wrapper node if
               // your custom input is more complex (See TypeaheadInputMulti for an example).
@@ -163,14 +169,12 @@ export const AsyncPagination = ({ endpoint, order, onSelect, excludeIds, searchB
         </FormControl>
       )}
       renderMenuItemChildren={(option) => (
-        <MenuItem
-          className={classes.menuItem}
-          key={option.id}
-          value={option.id}
-        >
+        // A plain element rather than MUI's MenuItem: react-bootstrap-typeahead renders
+        // its own menu, and MUI v9's MenuItem throws outside an MUI Menu/MenuList.
+        <div className={classes.menuItem} key={option.id}>
           <span className={classes.username}>{option[primaryKey]}</span>
           <span className={classes.username}>({option[secondarykey]})</span>
-        </MenuItem>
+        </div>
       )}
       useCache={false}
     />

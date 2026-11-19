@@ -3,10 +3,10 @@ import { MultiDropdownPaginated } from "./multi-dropdown-paginated";
 import { PropTypes } from "prop-types";
 import { useDispatch } from 'react-redux';
 import axios from "axios";
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 
 
-export const TagDropdown = ({ updateTagsURL, action, existingTags }) => {
+export const TagDropdown = ({ updateTagsURL, action, existingTags = [] }) => {
 
     const dispatch = useDispatch();
     const dropdownRef = useRef();
@@ -92,10 +92,6 @@ export const TagDropdown = ({ updateTagsURL, action, existingTags }) => {
         </div>
 
     )
-};
-
-TagDropdown.defaultProps = {
-  existingTags: []
 };
 
 TagDropdown.propTypes = {

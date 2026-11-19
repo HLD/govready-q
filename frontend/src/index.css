@@ -2,7 +2,7 @@
 @import '~@trussworks/react-uswds/lib/index.css';
  */
 
- @import 'react-pro-sidebar/dist/css/styles.css';
+ @import './components/shared/pro-sidebar-0.7.css';
 
 
  body{

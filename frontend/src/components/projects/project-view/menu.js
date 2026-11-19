@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ProSidebar, Menu, MenuItem, SubMenu, SidebarHeader } from 'react-pro-sidebar';
+import { ProSidebar, Menu, MenuItem, SidebarHeader } from '../../shared/proSidebar';
 import Grid from '@mui/material/Grid';
 import HomeIcon from '@mui/icons-material/Home';
 import SettingsInputComponentIcon from '@mui/icons-material/SettingsInputComponent';
@@ -17,7 +17,7 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import CreateIcon from '@mui/icons-material/Create';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import Box from '@mui/material/Box';
-import ReactDOM from 'react-dom';
+import { renderInto } from '../../shared/render';
 // import { projectTagsStateSlice } from "./slice"
 // import { Provider } from "react-redux";
 // import store from "../../../store";
@@ -42,7 +42,7 @@ window.projectMenu = (data) => {
 
 
 
-    ReactDOM.render(
+    renderInto(document.getElementById('menu'), (
         <>
             <Box style={{ marginLeft: '0px', height: '100%', width: '320px' }}>
                 <ProSidebar style={{ marginLeft: '-5px', paddingLeft: '0px', width: '320px' }} className="sticky" >
@@ -275,8 +275,6 @@ window.projectMenu = (data) => {
             </Box>
 
         </>
-        ,
-        document.getElementById('menu')
-    );
+    ));
 
 };

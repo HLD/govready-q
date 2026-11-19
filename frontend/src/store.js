@@ -1,16 +1,8 @@
-import {
-    configureStore,
-    getDefaultMiddleware
-} from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 
 import {componentTagsStateSlice} from "./components/elements/element-detail-tabs/slice"
 import {projectTagsStateSlice} from "./components/projects/project-view/slice";
 import modalReducer from "./components/shared/modalSlice";
-
-const middleware = [
-    ...getDefaultMiddleware(),
-    /*YOUR CUSTOM MIDDLEWARES HERE*/
-];
 
 const store = configureStore({
     reducer: {
@@ -18,7 +10,9 @@ const store = configureStore({
         projectTags: projectTagsStateSlice.reducer,
         modal: modalReducer
     },
-    middleware,
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware(
+        /*YOUR CUSTOM MIDDLEWARES HERE (use .concat())*/
+    ),
 });
 
 export default store;

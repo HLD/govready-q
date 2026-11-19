@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import clsx from 'clsx';
 
 import { 
@@ -29,7 +29,7 @@ import {
   TextField,
 } from '@mui/material';
 // import { createMuiTheme } from '@material-ui/core/styles';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
 import {
@@ -43,11 +43,11 @@ import {
   ControlLabel,
   Row,
   Modal
-} from 'react-bootstrap';
-// import Form from "@rjsf/core"; 
-import Form from "react-jsonschema-form";
+} from '../shared/bootstrap3';
+import Form from "@rjsf/core";
+import validator from "@rjsf/validator-ajv8";
 
-import LayoutField from '../shared/schemaForm'
+import { toLayoutGrid } from '../shared/schemaForm'
 
 import { AsyncPagination } from "../shared/asyncTypeahead";
 import { red, green } from '@mui/material/colors';
@@ -101,7 +101,7 @@ QuickSearchToolbar.propTypes = {
   value: PropTypes.string.isRequired,
 };
 
-const datagridStyles = makeStyles({
+const datagridStyles = makeStyles()({
   root: {
     "& .MuiDataGrid-renderingZone": {
       maxHeight: "none !important"
@@ -156,7 +156,7 @@ const datagridStyles = makeStyles({
 });
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   root: {
     fontweight: 900,
   },
@@ -487,24 +487,12 @@ const schema = {
 
 
 
-export const TitleField = (props) => {
-  const { title, required, id } = props
-
-  let legend = legend = `${title}${(required ? '*' : '')}`
-  return <label className="control-label" htmlFor={id}>{legend}</label>
-}
-
-const fields = {
-  layout_grid: LayoutField,
-  TitleField: TitleField
-}
-
 const isFilled = (fieldName) => ({ formData }) => (formData[fieldName] && formData[fieldName].length) ? true : false
 const isTrue = (fieldName) => ({ formData }) => (formData[fieldName])
 
 const uiSchema = {
-  'ui:field': 'layout_grid',
-  'ui:layout_grid': { 'ui:row': [
+  'ui:field': 'LayoutGridField',
+  'ui:layoutGrid': toLayoutGrid({ 'ui:row': [
     { 'ui:col': { xs: 12, children: [
       
       { 'ui:group': '','ui:row': [
@@ -579,7 +567,7 @@ const uiSchema = {
 
       ] },
     ] } },
-  ] },
+  ] }),
   'extra__Delay Status': {
     'autofocus': true,
   },
@@ -805,8 +793,8 @@ const uiSchema = {
 export const SystemSummary = ({ systemId, projectId }) => {
   const dispatch = useDispatch();
 
-  const classes = useStyles();
-  const dgClasses = datagridStyles();
+  const { classes } = useStyles();
+  const { classes: dgClasses } = datagridStyles();
   const [data, setData] = useState([]);
   const [sortby, setSortBy] = useState(["name", "asc"]);
   const [ rows, setRows ] = useState(data);
@@ -896,35 +884,35 @@ export const SystemSummary = ({ systemId, projectId }) => {
             headerName: 'Evidence',
             width: 150,
             editable: false,
-            valueGetter: (params) => params.row.weakness_name !== null ? params.row.weakness_name : "-",
+            valueGetter: (value, row) => row.weakness_name !== null ? row.weakness_name : "-",
           },
           {
             field: 'status',
             headerName: 'Status',
             width: 150,
             editable: false,
-            valueGetter: (params) => params.row.statement.status !== null ? params.row.statement.status : "-",
+            valueGetter: (value, row) => row.statement.status !== null ? row.statement.status : "-",
           },
           {
               field: 'risk_rating_adjusted',
               headerName: 'Criticality',
               width: 150,
               editable: false,
-              valueGetter: (params) => params.row.risk_rating_adjusted !== null ? params.row.risk_rating_adjusted : "-",
+              valueGetter: (value, row) => row.risk_rating_adjusted !== null ? row.risk_rating_adjusted : "-",
           },
           {
               field: 'created',
               headerName: 'Date Reported',
               width: 150,
               editable: false,
-              valueGetter: (params) => moment(params.row.created).format('MM/DD/YYYY'),
+              valueGetter: (value, row) => dayjs(row.created).format('MM/DD/YYYY'),
           },
           {
               field: 'updated',
               headerName: 'Reported By',
               width: 150,
               editable: false,
-              valueGetter: (params) => moment(params.row.updated).format('MM/DD/YYYY'),
+              valueGetter: (value, row) => dayjs(row.updated).format('MM/DD/YYYY'),
           },
       ];
       // debugger;
@@ -946,7 +934,7 @@ export const SystemSummary = ({ systemId, projectId }) => {
                   new: params.row.extra[key] === 'Newly Opened POAM'
                 }
               ),
-              valueGetter: (params) => params.row.extra[key] !== null ? params.row.extra[key] : "-"
+              valueGetter: (value, row) => row.extra[key] !== null ? row.extra[key] : "-"
             });
           } else {
             newColumns.push({
@@ -954,7 +942,7 @@ export const SystemSummary = ({ systemId, projectId }) => {
               headerName: key,
               width: 150,
               editable: ["Delay Justification", "Status as of June", "Comments"].includes(key) ? true : false,
-              valueGetter: (params) => params.row.extra[key] !== null ? params.row.extra[key] : "-"
+              valueGetter: (value, row) => row.extra[key] !== null ? row.extra[key] : "-"
             });
           }
           
@@ -1086,13 +1074,11 @@ export const SystemSummary = ({ systemId, projectId }) => {
                         density="compact"
                         rows={rows}
                         columns={columns}
-                        pageSize={12}
-                        rowsPerPageOptions={[12]}
+                        pageSizeOptions={[12]}
                         rowHeight={50}
                         checkboxSelection
-                        showScrollbar={true}
-                        selectRow
                         initialState={{
+                          pagination: { paginationModel: { pageSize: 12 } },
                           columns: {
                             columnVisibilityModel: {
                               // Hide columns status and traderName, the other columns will remain visible
@@ -1184,7 +1170,7 @@ export const SystemSummary = ({ systemId, projectId }) => {
                       formData={currentPoam}
                       schema={schema}
                       uiSchema={uiSchema}
-                      fields={fields}
+                      validator={validator}
                       // widgets={widgets}
                       onSubmit={onSubmit}
                       noHtml5Validate={true}

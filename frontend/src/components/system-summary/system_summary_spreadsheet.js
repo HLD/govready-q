@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import moment from 'moment';
 import {
   DataGrid,
   GridToolbar,
@@ -24,7 +23,7 @@ import {
   TextField,
 } from '@mui/material';
 // import { createMuiTheme } from '@material-ui/core/styles';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
 import {
@@ -39,14 +38,14 @@ import {
   FormGroup,
   Row,
   Modal
-} from 'react-bootstrap';
+} from '../shared/bootstrap3';
 import { AsyncPagination } from "../shared/asyncTypeahead";
 import { red, green } from '@mui/material/colors';
 import { ReactModal } from '../shared/modal';
 import { hide, show } from '../shared/modalSlice';
 // const defaultTheme = createMuiTheme();
 
-// const searchStyles = makeStyles({
+// const searchStyles = makeStyles()({
 //     root: {
 //       padding: theme.spacing(0.5, 0.5, 0),
 //       justifyContent: 'space-between',
@@ -108,7 +107,7 @@ QuickSearchToolbar.propTypes = {
   value: PropTypes.string.isRequired,
 };
 
-const datagridStyles = makeStyles({
+const datagridStyles = makeStyles()({
   root: {
     "& .MuiDataGrid-renderingZone": {
       maxHeight: "none !important"
@@ -131,7 +130,7 @@ const datagridStyles = makeStyles({
 });
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   root: {
     fontweight: 900,
   },
@@ -206,7 +205,6 @@ export default function AutoStopEditComponent() {
       <DataGrid
         rows={rows}
         columns={columns}
-        experimentalFeatures={{ newEditingApi: true }}
       />
     </div>
   );
@@ -214,8 +212,8 @@ export default function AutoStopEditComponent() {
 
 export const SystemSummarySpreadsheet = ({ systemId, projectId }) => {
 
-  const classes = useStyles();
-  const dgClasses = datagridStyles();
+  const { classes } = useStyles();
+  const { classes: dgClasses } = datagridStyles();
   const [data, setData] = useState([]);
   const [sortby, setSortBy] = useState(["name", "asc"]);
   const [ rows, setRows ] = useState(data)
@@ -254,63 +252,63 @@ export const SystemSummarySpreadsheet = ({ systemId, projectId }) => {
       headerName: 'CSAM_ID',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.csam_id,
+      valueGetter: (value, row) => row.csam_id,
     },
     {
       field: 'inherited',
       headerName: 'Inherited',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.inherited,
+      valueGetter: (value, row) => row.inherited,
     },
     {
       field: 'org',
       headerName: 'Org',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.org,
+      valueGetter: (value, row) => row.org,
     },
     {
       field: 'sub_org',
       headerName: 'sub_org',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.sub_org,
+      valueGetter: (value, row) => row.sub_org,
     },
     {
       field: 'system_name',
       headerName: 'system_name',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.system_name,
+      valueGetter: (value, row) => row.system_name,
     },
     {
       field: 'poam_id',
       headerName: 'poam_id',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.poam_id,
+      valueGetter: (value, row) => row.poam_id,
     },
     {
       field: 'poam_title',
       headerName: 'poam_title',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.poam_title,
+      valueGetter: (value, row) => row.poam_title,
     },
     {
       field: 'system_type',
       headerName: 'system_type',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.system_type,
+      valueGetter: (value, row) => row.system_type,
     },
     {
       field: 'detailed_weakness_description',
       headerName: 'detailed_weakness_description',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.detailed_weakness_description,
+      valueGetter: (value, row) => row.detailed_weakness_description,
     },
     {
       field: 'status',
@@ -318,7 +316,7 @@ export const SystemSummarySpreadsheet = ({ systemId, projectId }) => {
       width: 150,
       renderEditCell: (params) => renderSelectEditInputCell(params, systemId),
       editable: true,
-      valueGetter: (params) => params.row.status,
+      valueGetter: (value, row) => row.status,
     },
   ]);
 
@@ -329,14 +327,13 @@ export const SystemSummarySpreadsheet = ({ systemId, projectId }) => {
                 <QuickSearchToolbar value={searchText} onChange={(event) => requestSearch(event.target.value)} clearSearch={() => requestSearch('')}/>
                   <div style={{ width: "100%", marginBottom: "1rem", display: "flex", justifyContent: "space-between" }}>
                       <DataGrid
-                        experimentalFeatures={{ newEditingApi: true }}
+                        initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
                         className={dgClasses.root}
                         autoHeight={true}
                         density="compact"
                         rows={rows}
                         columns={columns}
-                        pageSize={25}
-                        rowsPerPageOptions={[25]}
+                        pageSizeOptions={[25]}
                         rowHeight={50}
                         checkboxSelection
                         // components={{ Toolbar: QuickSearchToolbar }}

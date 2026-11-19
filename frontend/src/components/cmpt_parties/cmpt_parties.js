@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { DataTable } from '../shared/table';
 import axios from 'axios';
-import moment from 'moment';
 import { DataGrid } from '@mui/x-data-grid';
 import { v4 as uuid_v4 } from "uuid";
 import { 
@@ -11,7 +10,7 @@ import {
   Paper,
   Stack,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 import {
   Tooltip,
   Button,
@@ -27,13 +26,13 @@ import {
   Popover,
   Row,
   Modal
-} from 'react-bootstrap';
+} from '../shared/bootstrap3';
 import { AsyncPagination } from "../shared/asyncTypeahead";
 import { red, green } from '@mui/material/colors';
 import { ReactModal } from '../shared/modal';
 import { hide, show } from '../shared/modalSlice';
 
-const datagridStyles = makeStyles({
+const datagridStyles = makeStyles()({
   root: {
     "& .MuiDataGrid-renderingZone": {
       maxHeight: "none !important"
@@ -56,7 +55,7 @@ const datagridStyles = makeStyles({
 });
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   root: {
     fontweight: 900,
   },
@@ -68,8 +67,8 @@ const useStyles = makeStyles({
 });
 
 export const ComponentParties = ({ elementId, poc_users, isOwner, isAdmin }) => {
-  const classes = useStyles();
-  const dgClasses = datagridStyles();
+  const { classes } = useStyles();
+  const { classes: dgClasses } = datagridStyles();
   const [data, setData] = useState([]);
   const [columns, setColumns] = useState([]);
   const [openPartyModal, setOpenPartyModal] = useState(false);
@@ -214,7 +213,7 @@ export const ComponentParties = ({ elementId, poc_users, isOwner, isAdmin }) => 
         type: 'string', 
         width: 150,
         editable: false,
-        valueGetter: (params) => params.row.name,
+        valueGetter: (value, row) => row.name,
       },
       {
         field: 'email',
@@ -222,11 +221,11 @@ export const ComponentParties = ({ elementId, poc_users, isOwner, isAdmin }) => 
         type: 'string', 
         width: 300,
         editable: false,
-        valueGetter: (params) => {
-          if(params.row.email === ''){
+        valueGetter: (value, row) => {
+          if(row.email === ''){
             return '-';
           } else {
-            return params.row.email;
+            return row.email;
           }
         },
       },
@@ -236,11 +235,11 @@ export const ComponentParties = ({ elementId, poc_users, isOwner, isAdmin }) => 
         type: 'string', 
         width: 300,
         editable: false,
-        valueGetter: (params) => {
-          if(params.row.phone_number === ''){
+        valueGetter: (value, row) => {
+          if(row.phone_number === ''){
             return '-';
           } else {
-            return params.row.phone_number;
+            return row.phone_number;
           }
         },
       },
@@ -565,7 +564,7 @@ export const ComponentParties = ({ elementId, poc_users, isOwner, isAdmin }) => 
       type: 'string', 
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.name,
+      valueGetter: (value, row) => row.name,
     },
     {
       field: 'email',
@@ -574,11 +573,11 @@ export const ComponentParties = ({ elementId, poc_users, isOwner, isAdmin }) => 
       width: 300,
       editable: false,
       // valueGetter: (params) => params.row.email,
-      valueGetter: (params) => {
-        if(params.row.email === ''){
+      valueGetter: (value, row) => {
+        if(row.email === ''){
           return '-';
         } else {
-          return params.row.email;
+          return row.email;
         }
       },
     },
@@ -589,11 +588,11 @@ export const ComponentParties = ({ elementId, poc_users, isOwner, isAdmin }) => 
         width: 150,
         editable: false,
         // valueGetter: (params) => params.row.phone_number,
-        valueGetter: (params) => {
-          if(params.row.phone_number === ''){
+        valueGetter: (value, row) => {
+          if(row.phone_number === ''){
             return '-';
           } else {
-            return params.row.phone_number;
+            return row.phone_number;
           }
         },
     },
@@ -1025,13 +1024,13 @@ export const ComponentParties = ({ elementId, poc_users, isOwner, isAdmin }) => 
             }
             </div>
           <DataGrid
+            initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
             className={dgClasses.root}
             autoHeight={true}
             density="compact"
             rows={data}
             columns={isOwner || isAdmin ? columnsForEditor : columns}
-            pageSize={25}
-            rowsPerPageOptions={[25]}
+            pageSizeOptions={[25]}
             rowHeight={50}
             checkboxSelection
             // onSelectionModelChange={(selectionModel, details) => {

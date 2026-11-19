@@ -10,11 +10,9 @@ fi
 
 mkdir -p static
 
-# Installs based on the package-lock.json.
-#npm --max-old-space-size=2048 ci --prefer-offline --no-audit --progress=false
-# Use the npm bundled with the Node.js LTS base image.
-
-npm install --prefer-offline --no-audit --progress=false
+# Use the npm bundled with the Node.js LTS base image, and install exactly what
+# package-lock.json specifies.
+npm ci --prefer-offline --no-audit --progress=false
 
 echo "[ + ] Starting Webpack"
 npm --max-old-space-size=2048 run dev

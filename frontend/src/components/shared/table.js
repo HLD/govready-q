@@ -14,7 +14,7 @@ import {
   Col,
 
 }
-  from 'react-bootstrap';
+  from './bootstrap3';
 
 export const columnDataTypes = {
   STRING: 1,
@@ -25,7 +25,8 @@ export const columnDataTypes = {
 
 
 
-export const DataTable = (props) => {
+export const DataTable = (inProps) => {
+  const props = { searchEnabled: true, rollups: [], ...inProps };
   const formatOrderBy = (data) => {
     return `${data[1] === "desc" ? "-" : ""}${data[0]}`;
   };
@@ -203,11 +204,6 @@ export const DataTable = (props) => {
     </div>
     
   );
-};
-
-DataTable.defaultProps = {
-  searchEnabled: true,
-  rollups: [],
 };
 
 DataTable.propTypes = {

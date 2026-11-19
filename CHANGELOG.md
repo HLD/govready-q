@@ -16,6 +16,13 @@ v0.12.0-dev (unreleased)
 * Replace python-xlsxio (does not build on Python 3.12) with openpyxl in the `import_csam_statements` command.
 * Convert `index_together` to `Meta.indexes` (with migrations that rename the existing indexes).
 * Update Selenium tests for the Selenium 4 API.
+* Frontend: upgrade to React 19, MUI 9 / MUI X DataGrid 9, @rjsf 6, Redux Toolkit 2, axios 1 and webpack-cli 7 / Babel 8 (Node.js 24).
+  * Fix the broken frontend build (`@mui/base` *Unstyled imports removed upstream).
+  * Replace react-bootstrap 0.33 (not compatible with React 19) with local components that render the same Bootstrap 3 markup, so the widgets keep their look on the Bootstrap 3 pages.
+  * Replace react-pro-sidebar 0.7 with local components that render the same markup; its stylesheet is vendored.
+  * Replace react-jsonschema-form 1.x with @rjsf 6 and its built-in LayoutGridField; moment with dayjs; @mui/styles with tss-react.
+  * Remove unused dependencies (react-router-dom, uuidv4, @fortawesome/*, url-loader, file-loader, etc.) and the stale yarn.lock.
+  * Add a CircleCI job that builds the frontend and audits its runtime dependencies.
 
 v0.11.8 (June 11, 2023)
 ---------------------------

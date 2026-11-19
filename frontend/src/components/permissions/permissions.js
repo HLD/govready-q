@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { DataTable } from '../shared/table';
 import axios from 'axios';
-import moment from 'moment';
 import { DataGrid } from '@mui/x-data-grid';
 import { v4 as uuid_v4 } from "uuid";
 import { 
   Grid,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 import {
   Tooltip,
   Button,
@@ -21,13 +20,13 @@ import {
   FormGroup, 
   Row,
   Modal
-} from 'react-bootstrap';
+} from '../shared/bootstrap3';
 import { AsyncPagination } from "../shared/asyncTypeahead";
 import { red, green } from '@mui/material/colors';
 import { ReactModal } from '../shared/modal';
 import { hide, show } from '../shared/modalSlice';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   root: {
     backgroundColor: 'orange',
     fontweight: 900,
@@ -47,7 +46,7 @@ const useStyles = makeStyles({
 export const Permissions = ({ elementId, isOwner }) => {
   const dispatch = useDispatch();
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [usersList, setUsersList] = useState([]);
   const [permList, setPermList] = useState([]);
   const [permissibleUsers, setPermissibleUsers] = useState([]);
@@ -160,14 +159,14 @@ export const Permissions = ({ elementId, isOwner }) => {
       headerName: 'Username',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.user.username,
+      valueGetter: (value, row) => row.user.username,
     },
     {
       field: 'email',
       headerName: 'Email',
       width: 300,
       editable: false,
-      valueGetter: (params) => params.row.user.email,
+      valueGetter: (value, row) => row.user.email,
     },
     {
       field: 'view',
@@ -253,14 +252,14 @@ export const Permissions = ({ elementId, isOwner }) => {
       headerName: 'Username',
       width: 150,
       editable: false,
-      valueGetter: (params) => params.row.user.username,
+      valueGetter: (value, row) => row.user.username,
     },
     {
       field: 'email',
       headerName: 'Email',
       width: 300,
       editable: false,
-      valueGetter: (params) => params.row.user.email,
+      valueGetter: (value, row) => row.user.email,
     },
     {
       field: 'view',
@@ -417,13 +416,13 @@ export const Permissions = ({ elementId, isOwner }) => {
       <Grid className="permissible-users-data-grid" sx={{ minHeight: '200px' }}>
         <div style={{width: "calc(100% - 1rem - 25px)", marginTop: "1rem" }}>
           <DataGrid
+            initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
             className={classes.table}
             autoHeight={true}
             density="compact"
             rows={permissibleUsers}
             columns={isOwner ? columnsForEditor : columns}
-            pageSize={25}
-            rowsPerPageOptions={[25]}
+            pageSizeOptions={[25]}
             checkboxSelection
             // onSelectionModelChange={(selectionModel, details) => {
             //   console.log(selectionModel, details);

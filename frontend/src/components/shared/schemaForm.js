@@ -1,150 +1,29 @@
-/* eslint-disable warning */
-import React from 'react'
-import ObjectField from 'react-jsonschema-form/lib/components/fields/ObjectField'
-import { retrieveSchema } from 'react-jsonschema-form/lib/utils'
-import { Col } from 'react-bootstrap'
+// Grid layouts for @rjsf forms.
+//
+// The POA&M edit form describes its layout with nested 'ui:row' / 'ui:col' objects,
+// where each column gives Bootstrap 3 widths ({ sm: 3, md: 3, children: [...] }) and
+// a row may be marked as a 'ui:group'. This used to be rendered by a custom
+// LayoutGridField that subclassed react-jsonschema-form v1 internals. @rjsf v6 has
+// a built-in LayoutGridField; `toLayoutGrid` converts the layout description into
+// its format (Bootstrap 3 column classes go in `className`).
 
-export default class LayoutGridField extends ObjectField {
-  state = { firstName: 'hasldf' }
+const COLUMN_SIZES = ['xs', 'sm', 'md', 'lg'];
 
-  render() {
-    const { uiSchema } = this.props
-    let { layoutGridSchema } = this.props
-    if (!layoutGridSchema) layoutGridSchema = uiSchema['ui:layout_grid']
-
-    if (layoutGridSchema['ui:row']) {
-      return this.renderRow(layoutGridSchema)
-    } else if (layoutGridSchema['ui:col']) {
-      return this.renderCol(layoutGridSchema)
-    } else {
-      return this.renderField(layoutGridSchema)
-    }
+export function toLayoutGrid(layout) {
+  if (typeof layout === 'string') {
+    return layout;
   }
-
-  renderRow(layoutGridSchema) {
-    const { myKey } = this.props
-    const rows = layoutGridSchema['ui:row']
-
-    const group = layoutGridSchema['ui:group']
-
-    if (group) {
-      const { fields, formContext } = this.props.registry
-      const { TitleField } = fields
-      const { required } = this.props
-      const title = group && typeof group === 'string' ? group : null
-
-      return (
-        <fieldset className="rjsf-layout-grid-group">
-          {title ? <TitleField
-              title={title}
-              required={required}
-              formContext={formContext}/> : null}
-          {<div className="row" key={myKey}>{this.renderChildren(rows)}</div>}
-        </fieldset>
-      )
-    } else {
-      return <div className="row" key={myKey}>{this.renderChildren(rows)}</div>
-    }
+  if (layout['ui:row']) {
+    const className = layout['ui:group'] !== undefined ? 'row rjsf-layout-grid-group' : 'row';
+    return { 'ui:row': { className, children: layout['ui:row'].map(toLayoutGrid) } };
   }
-
-  renderCol(layoutGridSchema) {
-    const { myKey } = this.props
-    const { children, ...colProps } = layoutGridSchema['ui:col']
-
-    const group = layoutGridSchema['ui:group']
-
-    if (group) {
-      const { fields, formContext } = this.props.registry
-      const { TitleField } = fields
-      const { required } = this.props
-      const title = group && typeof group === 'string' ? group : null
-
-      return (
-        <Col {...colProps} key={myKey}>
-          <fieldset className="rjsf-layout-grid-group">
-            {title ? <TitleField
-                title={title}
-                required={required}
-                formContext={formContext}/> : null}
-            {this.renderChildren(children)}
-          </fieldset>
-        </Col>
-      )
-    } else {
-      return <Col {...colProps} key={myKey}>{this.renderChildren(children)}</Col>
-    }
+  if (layout['ui:col']) {
+    const { children = [], className, ...sizes } = layout['ui:col'];
+    const classes = COLUMN_SIZES
+      .filter((size) => sizes[size] !== undefined)
+      .map((size) => `col-${size}-${sizes[size]}`);
+    if (className) classes.push(className);
+    return { 'ui:col': { className: classes.join(' '), children: children.map(toLayoutGrid) } };
   }
-
-  renderChildren(childrenLayoutGridSchema) {
-    const { definitions } = this.props.registry
-    const schema = retrieveSchema(this.props.schema, definitions)
-
-    return childrenLayoutGridSchema.map((layoutGridSchema, index) => (
-      <LayoutGridField
-        {...this.props}
-        key={index}
-        myKey={index}
-        schema={schema}
-        layoutGridSchema={layoutGridSchema}/>
-    ))
-  }
-
-  renderField(layoutGridSchema) {
-    const {
-      myKey,
-      uiSchema,
-      errorSchema,
-      idSchema,
-      disabled,
-      readonly,
-      onBlur,
-      onFocus,
-      formData
-    } = this.props
-    const { definitions, fields } = this.props.registry
-    const { SchemaField } = fields
-    const schema = retrieveSchema(this.props.schema, definitions)
-    let name
-    let render
-    if (typeof layoutGridSchema === 'string') {
-      name = layoutGridSchema
-    } else {
-      name = layoutGridSchema.name
-      render = layoutGridSchema.render
-    }
-
-    if (schema.properties[name]) {
-      return (
-        <SchemaField
-          myKey={myKey}
-          name={name}
-          required={this.isRequired(name)}
-          schema={schema.properties[name]}
-          uiSchema={uiSchema[name]}
-          errorSchema={errorSchema[name]}
-          idSchema={idSchema[name]}
-          formData={formData[name]}
-          onChange={this.onPropertyChange(name)}
-          onBlur={onBlur}
-          onFocus={onFocus}
-          registry={this.props.registry}
-          disabled={disabled}
-          readonly={readonly}/>
-      )
-    } else {
-      const UIComponent = render || (() => null)
-
-      return (
-        <UIComponent
-          myKey={myKey}
-          name={name}
-          formData={formData}
-          errorSchema={errorSchema}
-          uiSchema={uiSchema}
-          schema={schema}
-          registry={this.props.registry}
-        />
-      )
-    }
-  }
+  return layout;
 }

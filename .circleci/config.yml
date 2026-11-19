@@ -11,8 +11,20 @@ workflows:
             context:
               - snyk_api
         - tests
+        - frontend
 
 jobs:
+  frontend:
+    docker:
+      - image: cimg/node:24.11
+    steps:
+      - checkout
+      # Install exactly what package-lock.json specifies and build the production bundle.
+      - run: cd frontend && npm ci --no-audit --no-fund
+      - run: cd frontend && npm run build
+      # Fail on known vulnerabilities in runtime dependencies.
+      - run: cd frontend && npm audit --omit=dev --audit-level=high
+
   security-checks:
     docker:
       - image: cimg/python:3.12

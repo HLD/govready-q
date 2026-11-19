@@ -4,10 +4,10 @@ import {
     Button,
     Grid,
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import { ListGroup, ListGroupItem } from 'react-bootstrap';
+import { makeStyles } from 'tss-react/mui';
+import { ListGroup, ListGroupItem } from '../shared/bootstrap3';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
     root: {
       fontweight: 900,
     },
@@ -131,7 +131,7 @@ const useStyles = makeStyles({
 });
 
 export const ProposalSteps = ({ userId, system, element, proposal, request, hasSentRequest }) => {
-    const classes = useStyles(proposal.status);
+    const { classes } = useStyles();
 
     const getStatusLevel = (status) => {
         switch (status.toLowerCase()) {
