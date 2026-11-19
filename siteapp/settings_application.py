@@ -107,7 +107,10 @@ if environment.get("trust-user-authentication-headers"):
     # Because regular authentication is disabled, before setting this setting
     # you should ensure you'll be able to log in with the proxy using the
     # username of an admin account that is already registered.
-    MIDDLEWARE.append('siteapp.middleware.misc.ProxyHeaderUserAuthenticationMiddleware') # must be after AuthenticationMiddleware but before OrganizationSubdomainMiddleware
+    # Must come right after AuthenticationMiddleware, so later middleware (e.g. the
+    # warning banner) already sees the authenticated user.
+    MIDDLEWARE.insert(MIDDLEWARE.index('django.contrib.auth.middleware.AuthenticationMiddleware') + 1,
+                      'siteapp.middleware.misc.ProxyHeaderUserAuthenticationMiddleware')
     AUTHENTICATION_BACKENDS.remove('django.contrib.auth.backends.ModelBackend') # disable the standard login backends
     AUTHENTICATION_BACKENDS.remove('allauth.account.auth_backends.AuthenticationBackend')
     AUTHENTICATION_BACKENDS.append('siteapp.middleware.misc.ProxyHeaderUserAuthenticationBackend') # add backend for this method

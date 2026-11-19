@@ -1,6 +1,7 @@
 from django.http.response import HttpResponseRedirect
 from django.template.exceptions import TemplateDoesNotExist
 from django.template.loader import get_template
+from django.conf import settings
 from django.contrib.auth import logout
 
 
@@ -22,10 +23,14 @@ class BannerMiddleware:
             banner_url = "/warningmessage/"
             
             if request.user.is_authenticated and request.path == "/decline/":
+                if getattr(settings, "EXEDEV_AUTH", None):
+                    # The exe.dev proxy would log the user straight back in; end the
+                    # exe.dev session too via the logout view.
+                    return HttpResponseRedirect("/accounts/logout/")
                 logout(request)
                 return HttpResponseRedirect("/")
 
-            if request.user.is_authenticated and request.path != banner_url:
+            if request.user.is_authenticated and request.path not in (banner_url, "/accounts/logout/"):
                 if not request.session.get("_banner_checked"):   
                     return HttpResponseRedirect(banner_url)  
 

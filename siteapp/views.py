@@ -91,7 +91,7 @@ def home_user(request):
         return HttpResponseRedirect("/login")
     
     isInternet = False
-    if('Trident' in request.META['HTTP_USER_AGENT']):
+    if('Trident' in request.META.get('HTTP_USER_AGENT', '')):
         isInternet = True
 
     portfolio = request.user.portfolio_list().first()
@@ -120,7 +120,7 @@ def homepage(request):
     login_form = LoginForm()
 
     isInternet = False
-    if('Trident' in request.META['HTTP_USER_AGENT']):
+    if('Trident' in request.META.get('HTTP_USER_AGENT', '')):
         isInternet = True
 
     # The allauth forms have 'autofocus' set on their widgets that draw the
