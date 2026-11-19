@@ -106,6 +106,8 @@ if GOVREADY_URL.scheme and GOVREADY_URL.netloc:
     CSRF_TRUSTED_ORIGINS.append(f"{GOVREADY_URL.scheme}://{GOVREADY_URL.netloc}")
 if "csrf_trusted_origins" in environment:
     CSRF_TRUSTED_ORIGINS.extend(environment["csrf_trusted_origins"])
+# Let users retry a form whose CSRF token went stale instead of showing a bare 403.
+CSRF_FAILURE_VIEW = "siteapp.csrf.csrf_failure"
 
 # allauth requires the use of the sites framework.
 SITE_ID = 1
