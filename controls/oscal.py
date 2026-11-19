@@ -353,8 +353,14 @@ class Catalog(object):
             if parameter["id"] not in parameter_values:
                 parameter_values[parameter["id"]] = f"[{parameter.get('label', parameter['id'])}]"
 
-        for parameter_key, parameter_value in parameter_values.items():
-            text = re.sub(r"{{ " + re.escape(parameter_key) + " }}", parameter_value, text)
+        # Repeat a few times: a parameter's text can itself contain placeholders for
+        # other parameters (e.g. a selection choice that embeds another parameter).
+        for _ in range(4):
+            previous = text
+            for parameter_key, parameter_value in parameter_values.items():
+                text = text.replace("{{ " + parameter_key + " }}", parameter_value)
+            if text == previous:
+                break
 
         return text
 

@@ -1,3 +1,4 @@
+import ast
 from pathlib import Path
 import os
 import json
@@ -823,7 +824,7 @@ class System(auto_prefetch.Model, TagModelMixin, ProposalModelMixin):
             security_objective_smt.update(body=security_impact_level)
         else:
             # Set the security_impact_level smt for element; should only have 1 statement
-            security_objective_smt, created = Statement.objects.create(statement_type=StatementTypeEnum.SECURITY_IMPACT_LEVEL.name, producer_element=self.root_element,consumer_element=self.root_element, body=security_impact_level)
+            security_objective_smt = Statement.objects.create(statement_type=StatementTypeEnum.SECURITY_IMPACT_LEVEL.name, producer_element=self.root_element,consumer_element=self.root_element, body=security_impact_level)
         return security_impact_level, security_objective_smt
 
     @property
@@ -833,7 +834,8 @@ class System(auto_prefetch.Model, TagModelMixin, ProposalModelMixin):
         # Get the security_impact_level smt for element; should only have 1 statement
         try:
             smt = Statement.objects.get(statement_type=StatementTypeEnum.SECURITY_IMPACT_LEVEL.name, producer_element=self.root_element, consumer_element=self.root_element)
-            security_impact_level = eval(smt.body)# Evaluate string of dictionary
+            # Parse the stored dictionary text without executing it (it can come from user input).
+            security_impact_level = ast.literal_eval(smt.body)
             return security_impact_level
         except Statement.DoesNotExist:
             return {}
