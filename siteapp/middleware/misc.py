@@ -121,6 +121,11 @@ class ProxyHeaderUserAuthenticationBackend(django.contrib.auth.backends.RemoteUs
                 user_portfolio.save()
                 # Grant owner permissions on new portfolio to user
                 user_portfolio.assign_owner_permissions(user)
+            if user.default_portfolio is None:
+                # Make it the user's default, so views that need a default portfolio
+                # don't create a second one.
+                user.default_portfolio = user_portfolio
+                user.save()
 
             # Make sure user has permission to view app sources and thus see available compliance apps
             # New users may not have permission to view app sources, so add permission if user does not have it
