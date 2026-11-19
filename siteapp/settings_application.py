@@ -78,6 +78,23 @@ elif OIDC_CONFIG:
     OIDC_CLAIMS_MAP = OIDC_CONFIG['claims_map']
     OIDC_ROLES_MAP = OIDC_CONFIG['roles_map']
 
+EXEDEV_AUTH = environment.get("exedev-auth")
+if EXEDEV_AUTH:
+    # "Login with exe.dev": the exe.dev HTTPS proxy authenticates users and adds
+    # X-ExeDev-Email / X-ExeDev-UserID headers to every request it forwards
+    # (https://exe.dev/docs/login-with-exe.md). Users are identified by their
+    # exe.dev email address, which becomes their GovReady-Q username, and accounts
+    # are created on first login. Emails listed in "admins" are made superusers.
+    #   "exedev-auth": {"admins": ["you@example.com"]}
+    # Only enable this when the app is reachable solely through the exe.dev proxy.
+    if not isinstance(EXEDEV_AUTH, dict):
+        EXEDEV_AUTH = {}
+    environment["trust-user-authentication-headers"] = {
+        "username": "HTTP_X_EXEDEV_EMAIL",
+        "email": "HTTP_X_EXEDEV_EMAIL",
+    }
+    print("Using exe.dev authentication; admins:", EXEDEV_AUTH.get("admins", []))
+
 if environment.get("trust-user-authentication-headers"):
     # When this is set, the 'username' and 'email' keys hold HTTP header
     # names which control user authentication. Standard authentication
@@ -96,8 +113,9 @@ if environment.get("trust-user-authentication-headers"):
     AUTHENTICATION_BACKENDS.append('siteapp.middleware.misc.ProxyHeaderUserAuthenticationBackend') # add backend for this method
     PROXY_HEADER_AUTHENTICATION_HEADERS = environment["trust-user-authentication-headers"]
     print("Trusting authentication headers:", PROXY_HEADER_AUTHENTICATION_HEADERS)
-    LOGOUT_REDIRECT_URL = "/sso-logout"
-    print("Setting LOGOUT_REDIRECT_URL to", LOGOUT_REDIRECT_URL)
+    if not EXEDEV_AUTH:
+        LOGOUT_REDIRECT_URL = "/sso-logout"
+        print("Setting LOGOUT_REDIRECT_URL to", LOGOUT_REDIRECT_URL)
 
 # PDF Generation settings
 GR_PDF_GENERATOR = environment.get("gr-pdf-generator", None)

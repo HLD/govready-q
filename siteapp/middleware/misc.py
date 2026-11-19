@@ -63,6 +63,13 @@ class ProxyHeaderUserAuthenticationMiddleware(django.contrib.auth.middleware.Rem
 
 
 class ProxyHeaderUserAuthenticationBackend(django.contrib.auth.backends.RemoteUserBackend):
+    def clean_username(self, username):
+        # With exe.dev authentication the username is the user's email address;
+        # normalize case so the same person always maps to the same account.
+        if getattr(settings, 'EXEDEV_AUTH', None):
+            return username.strip().lower()
+        return username
+
     def authenticate(self, request, remote_user):
         # Let the Django class get the user.
         user = super(ProxyHeaderUserAuthenticationBackend, self).authenticate(request, remote_user)
@@ -80,6 +87,15 @@ class ProxyHeaderUserAuthenticationBackend(django.contrib.auth.backends.RemoteUs
             if email_addr and user.email != email_addr:
                 user.email = email_addr
                 user.save()
+
+            # exe.dev authentication: make the configured admin emails superusers.
+            exedev_auth = getattr(settings, 'EXEDEV_AUTH', None)
+            if exedev_auth and email_addr:
+                admins = {e.strip().lower() for e in exedev_auth.get('admins', [])}
+                if email_addr.strip().lower() in admins and not (user.is_superuser and user.is_staff):
+                    user.is_superuser = True
+                    user.is_staff = True
+                    user.save()
 
             # Log.
             import logging

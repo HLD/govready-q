@@ -98,6 +98,15 @@ if DEBUG and 'localhost' in ALLOWED_HOSTS:
 
 print("INFO: ALLOWED_HOSTS", ALLOWED_HOSTS)
 
+# Django 4.0+ checks the Origin header of unsafe requests (e.g. form POSTs) against
+# CSRF_TRUSTED_ORIGINS. Trust the site's own public origin from 'govready-url', which
+# may differ from what Django sees behind a reverse proxy (scheme and/or port).
+CSRF_TRUSTED_ORIGINS = []
+if GOVREADY_URL.scheme and GOVREADY_URL.netloc:
+    CSRF_TRUSTED_ORIGINS.append(f"{GOVREADY_URL.scheme}://{GOVREADY_URL.netloc}")
+if "csrf_trusted_origins" in environment:
+    CSRF_TRUSTED_ORIGINS.extend(environment["csrf_trusted_origins"])
+
 # allauth requires the use of the sites framework.
 SITE_ID = 1
 
@@ -438,6 +447,11 @@ if (GOVREADY_URL.scheme == "https") or (GOVREADY_URL.scheme == "" and "https" in
         #       SECURE_SSL_REDIRECT is False by default.
         SECURE_SSL_REDIRECT = True
         print("INFO: SECURE_SSL_REDIRECT is set to 'True'. May cause infinite redirects behind reverse proxies.")
+    if environment.get("behind-proxy", False):
+        # Running behind a TLS-terminating reverse proxy that sets X-Forwarded-Proto.
+        # Only enable this when the proxy always sets (or strips) that header.
+        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+        print("INFO: Trusting X-Forwarded-Proto from the reverse proxy ('behind-proxy' is set).")
 else:
     print("INFO: Connection scheme is 'http'.")
     # Silence some checks about HTTPS.

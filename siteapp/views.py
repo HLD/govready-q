@@ -2349,6 +2349,24 @@ def sso_logout(request):
     return HttpResponse(html)
 
 
+def exedev_logout(request):
+    # Log out of GovReady-Q and of exe.dev. The exe.dev proxy re-authenticates every
+    # request from its own cookie, so the exe.dev session must be ended too, by
+    # POSTing to the proxy's logout URL (https://exe.dev/docs/login-with-exe.md).
+    from django.contrib.auth import logout
+    logger.info(
+        event="exedev_logout",
+        user={"id": request.user.id, "username": request.user.username}
+    )
+    logout(request)
+    html = """<!doctype html><html><head><title>Logging out</title></head>
+<body onload="document.getElementById('exedev-logout').submit()">
+<form id="exedev-logout" method="post" action="/__exe.dev/logout">
+<noscript><button type="submit">Log out of exe.dev</button></noscript>
+</form><p>Logging out&hellip;</p></body></html>"""
+    return HttpResponse(html)
+
+
 @login_required
 def list_tags(request):
     starts_with = request.GET.get('search')

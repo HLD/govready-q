@@ -1099,6 +1099,29 @@ class OpenControlComponentSerializer(ComponentSerializer):
         opencontrol_string = rtyaml.dump(ocf)
         return opencontrol_string
 
+NAIVE_ISO_DATETIME = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$")
+
+
+def normalize_oscal_for_validation(value):
+    """Return a copy of an OSCAL JSON value with two common authoring errors fixed.
+
+    Many component files (including the bundled samples) are not strictly valid OSCAL,
+    which compliance-trestle enforces:
+    - OSCAL arrays must have at least one item. An empty array carries no information,
+      so it is removed.
+    - OSCAL date-times must include a timezone. A date-time without one is read as UTC.
+    The result is used only for validation; the import itself reads the original JSON.
+    """
+    if isinstance(value, dict):
+        return {k: normalize_oscal_for_validation(v) for k, v in value.items()
+                if not (isinstance(v, list) and len(v) == 0)}
+    if isinstance(value, list):
+        return [normalize_oscal_for_validation(v) for v in value]
+    if isinstance(value, str) and NAIVE_ISO_DATETIME.match(value):
+        return value + "Z"
+    return value
+
+
 class ComponentImporter(object):
 
     def import_components_as_json(self, import_name, json_object, request=None, existing_import_record=False, stopinvalid=True):
@@ -1122,7 +1145,9 @@ class ComponentImporter(object):
             path_component_definition = pathlib.Path(path)
             oscal_json = json.loads(json_object)
             with open(path, 'w+') as cred:
-                json.dump(oscal_json, cred)
+                # Validate a copy with common authoring errors normalized (see
+                # normalize_oscal_for_validation).
+                json.dump(normalize_oscal_for_validation(oscal_json), cred)
             # Read in temporary file and shape into trestle pydantic Component definition.
             trestle_oscal_json = trestlecomponent.ComponentDefinition.oscal_read(path_component_definition)
             # Finally validate that this object is valid by the component definition

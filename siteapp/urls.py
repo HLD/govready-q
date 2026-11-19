@@ -199,5 +199,7 @@ if environment.get("trust-user-authentication-headers"):
     print("settings.PROXY_AUTHENTICATION_USER_HEADER enabled. Catching route accounts/logout/")
 
     urlpatterns += [
-        re_path(r'^accounts/logout/$', views.sso_logout, name="sso-logout")
+        re_path(r'^accounts/logout/$',
+                views.exedev_logout if getattr(settings, 'EXEDEV_AUTH', None) else views.sso_logout,
+                name="sso-logout")
     ]

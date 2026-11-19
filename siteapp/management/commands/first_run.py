@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction, models
 from django.db.utils import OperationalError
 from django.conf import settings
+from django.utils.crypto import get_random_string
 
 from guidedmodules.models import AppSource, Module
 from siteapp.models import User, Organization, Portfolio
@@ -51,6 +52,7 @@ class Command(BaseCommand):
                 org.save()
 
         # Set values for default apps (templates) for Aspen new system page
+        org = Organization.objects.filter(name="main").first() or Organization.objects.first()
         if "default_appversion_name_list" not in org.extra:
             org.extra["default_appversion_name_list"] = [
                 "Blank Project",
@@ -113,7 +115,8 @@ class Command(BaseCommand):
                 # Create an "admin" account with a random pwd and
                 # print it on stdout.
                 user = User.objects.create(username="admin", is_superuser=True, is_staff=True)
-                password = User.objects.make_random_password(length=12)
+                # (UserManager.make_random_password was removed in Django 5.1.)
+                password = get_random_string(12)
                 user.set_password(password)
                 user.save()
                 portfolio = user.create_default_portfolio_if_missing()
